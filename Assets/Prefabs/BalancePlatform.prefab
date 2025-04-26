@@ -183,7 +183,7 @@ GameObject:
   - component: {fileID: 7238744563224074192}
   - component: {fileID: 2446479592863298422}
   - component: {fileID: 3090017506403457651}
-  - component: {fileID: 3070379608872568404}
+  - component: {fileID: 8703241010178880108}
   - component: {fileID: 2674721046118902322}
   m_Layer: 0
   m_Name: PlatformAgent
@@ -321,7 +321,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_BrainParameters:
-    VectorObservationSize: 8
+    VectorObservationSize: 10
     NumStackedVectorObservations: 1
     m_ActionSpec:
       m_NumContinuousActions: 2
@@ -330,7 +330,7 @@ MonoBehaviour:
     VectorActionDescriptions: []
     VectorActionSpaceType: 1
     hasUpgradedBrainParametersWithActionSpec: 1
-  m_Model: {fileID: 5022602860645237092, guid: 67049e5cb9f7dd97ea424e2e1206535c, type: 3}
+  m_Model: {fileID: 0}
   m_InferenceDevice: 2
   m_BehaviorType: 0
   m_BehaviorName: PlatformCenter
@@ -339,7 +339,7 @@ MonoBehaviour:
   m_UseChildActuators: 1
   m_DeterministicInference: 0
   m_ObservableAttributeHandling: 0
---- !u!114 &3070379608872568404
+--- !u!114 &8703241010178880108
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -348,7 +348,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 5582320649775191877}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 95ac3abdf1a9baa139d2f1d54229840a, type: 3}
+  m_Script: {fileID: 11500000, guid: 1eee0c97c22f5fc99ba22ae2ff403638, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   agentParameters:
@@ -356,6 +356,7 @@ MonoBehaviour:
   hasUpgradedFromAgentParameters: 1
   MaxStep: 5000
   ball: {fileID: 5440301697369563083}
+  targetPosition: {x: 2, y: 0, z: 2}
 --- !u!114 &2674721046118902322
 MonoBehaviour:
   m_ObjectHideFlags: 0
