@@ -13,9 +13,51 @@ public class MazeFromAscii : MonoBehaviour
     public TextAsset asciiMaze;
 
     [Header("Prefabs")]
-    public GameObject floorPrefab;   // 1×1 on X-Z, pivot at base
+    public GameObject floorAgentPrefab;   // 1×1 on X-Z, pivot at base
+    public GameObject ballPrefab;
     public GameObject wallPrefab;    // 1×1×1 cube stretched to desired height
+
+    [Header("Scales")]
     public Vector3 wallScale;
+    public Vector3 ballScale;
+    private void CheckColumnSizes(string[] rows, int colCount)
+    {
+        foreach (string row in rows)
+        {
+            if (row.Length != colCount)
+            {
+                Debug.LogError("All rows must have the same size! Ensure there is no empty line at the end of the file.");
+            }
+        }
+    }
+    private GameObject SpawnFloor(int rowCount, int colCount)
+    {
+        float floorScaleX = wallScale.x * colCount;
+        float floorScaleZ = wallScale.z * rowCount;
+
+        Vector3 floorScale = new Vector3(floorScaleX, 0.1f, floorScaleZ);
+
+        GameObject floorAgent = Instantiate(floorAgentPrefab, Vector3.zero, Quaternion.identity, transform);
+        floorAgent.transform.localScale = floorScale;
+        return floorAgent;
+    }
+    private GameObject SpawnWallsContainer(Transform parent)
+    {
+        GameObject wallsContainer = new GameObject("Walls");
+        wallsContainer.transform.SetParent(parent);
+        wallsContainer.transform.localPosition = Vector3.zero;
+        return wallsContainer;
+    }
+    private void SpawnWall(Vector3 pos, Transform parent)
+    {
+        GameObject wall = Instantiate(wallPrefab, pos, Quaternion.identity, parent);
+        wall.transform.localScale = Vector3.Scale(wall.transform.localScale, wallScale);
+    }
+    private void SpawnBall(Vector3 pos)
+    {
+        GameObject ball = Instantiate(ballPrefab, pos, Quaternion.identity, transform);
+        ball.transform.localScale = Vector3.Scale(ball.transform.localScale, ballScale);
+    }
 
     [ContextMenu("Build From Config")]
     public void Build()
@@ -28,13 +70,10 @@ public class MazeFromAscii : MonoBehaviour
         string[] rows = asciiMaze.text.Replace("\r", "").Split('\n');
         int rowCount = rows.Length;
         int colCount = rows[0].Length;
+        CheckColumnSizes(rows, colCount);
 
-        // needs scaling in the future
-        GameObject floor = Instantiate(floorPrefab, new Vector3(0, 0, 0), Quaternion.identity, transform);
-
-        GameObject wallsContainer = new GameObject("Walls");
-        wallsContainer.transform.SetParent(floor.transform);
-        wallsContainer.transform.localPosition = Vector3.zero;
+        GameObject floorAgent = SpawnFloor(rowCount, colCount);
+        GameObject wallsContainer = SpawnWallsContainer(floorAgent.transform);
 
         // x are columns, z are rows
         float zShift = ((rowCount - 1) / 2.0f) * wallScale.z;
@@ -52,8 +91,7 @@ public class MazeFromAscii : MonoBehaviour
                         // do nothing (floor is simply a large tile)
                         break;
                     case '#':
-                        GameObject wall = Instantiate(wallPrefab, pos, Quaternion.identity, wallsContainer.transform);
-                        wall.transform.localScale = Vector3.Scale(wall.transform.localScale, wallScale);
+                        SpawnWall(pos, wallsContainer.transform);
                         break;
                     case 'B':
                         // Going to be where we define the ball
@@ -62,6 +100,7 @@ public class MazeFromAscii : MonoBehaviour
                             Debug.LogError("Cannot spawn two balls at once! (at least not yet)");
                         }
                         foundBall = true;
+                        SpawnBall(pos);
                         break;
                     default:
                         Debug.LogWarning($"Unknown char '{c}' at {x},{z}: skipping");

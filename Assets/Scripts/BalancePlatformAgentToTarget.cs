@@ -12,7 +12,7 @@ public class BalancePlatformAgentToTarget : Agent
     // position relative to the plane (we take into account orientation)
     // relative position should have y = 0
     public Vector3 targetPosition;
-    public bool initPositionOnBegin;
+    public bool randomPositionOnBegin;
     float maxDistSquared;
     double minHeight;
     double xMaxDist;
@@ -37,7 +37,7 @@ public class BalancePlatformAgentToTarget : Agent
         ball.transform.position = new Vector3(Random.Range(-1.5f, 1.5f), 4f, Random.Range(-1.5f, 1.5f))
             + gameObject.transform.position;
 
-        if (initPositionOnBegin)
+        if (randomPositionOnBegin)
         {
             targetPosition = new Vector3(Random.Range(-4f, 4f), 0, Random.Range(-4f, 4f));
         }
