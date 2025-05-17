@@ -15,6 +15,7 @@ public class MazeFromAscii : MonoBehaviour
     [Header("Prefabs")]
     public GameObject floorPrefab;   // 1×1 on X-Z, pivot at base
     public GameObject wallPrefab;    // 1×1×1 cube stretched to desired height
+    public Vector3 wallScale;
 
     [ContextMenu("Build From Config")]
     public void Build()
@@ -34,14 +35,17 @@ public class MazeFromAscii : MonoBehaviour
         GameObject wallsContainer = new GameObject("Walls");
         wallsContainer.transform.SetParent(floor.transform);
         wallsContainer.transform.localPosition = Vector3.zero;
-        // wallsContainer = Instantiate(wallsContainer, Vector3.zero, Quaternion.identity, floor.transform);
 
+        // x are columns, z are rows
+        float zShift = ((rowCount - 1) / 2.0f) * wallScale.z;
+        float xShift = ((colCount - 1) / 2.0f) * wallScale.x;
+        bool foundBall = false;
         for (int z = 0; z < rowCount; z++)
         {
             for (int x = 0; x < colCount; x++)
             {
                 char c = rows[z][x];
-                Vector3 pos = new Vector3(x, 0.5f, rowCount - 1 - z);   // flip Z so row 0 is top
+                Vector3 pos = new Vector3(x - xShift, 0.5f, (rowCount - 1 - z) - zShift);   // flip Z so row 0 is top
                 switch (c)
                 {
                     case ' ':
@@ -49,6 +53,15 @@ public class MazeFromAscii : MonoBehaviour
                         break;
                     case '#':
                         GameObject wall = Instantiate(wallPrefab, pos, Quaternion.identity, wallsContainer.transform);
+                        wall.transform.localScale = Vector3.Scale(wall.transform.localScale, wallScale);
+                        break;
+                    case 'B':
+                        // Going to be where we define the ball
+                        if (foundBall)
+                        {
+                            Debug.LogError("Cannot spawn two balls at once! (at least not yet)");
+                        }
+                        foundBall = true;
                         break;
                     default:
                         Debug.LogWarning($"Unknown char '{c}' at {x},{z}: skipping");
