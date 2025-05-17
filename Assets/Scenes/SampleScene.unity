@@ -135,7 +135,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &152194779
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -179,6 +179,34 @@ PrefabInstance:
       propertyPath: m_Name
       value: BalancePlatform
       objectReference: {fileID: 0}
+    - target: {fileID: 3070379608872568404, guid: b28e484ca9693f4c69647550ff47ff4c, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3090017506403457651, guid: b28e484ca9693f4c69647550ff47ff4c, type: 3}
+      propertyPath: m_Model
+      value: 
+      objectReference: {fileID: 5022602860645237092, guid: f824c4fca560e599b8a27f9b7bd45220, type: 3}
+    - target: {fileID: 3090017506403457651, guid: b28e484ca9693f4c69647550ff47ff4c, type: 3}
+      propertyPath: m_BehaviorName
+      value: PlatformTarget
+      objectReference: {fileID: 0}
+    - target: {fileID: 3090017506403457651, guid: b28e484ca9693f4c69647550ff47ff4c, type: 3}
+      propertyPath: m_BehaviorType
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3090017506403457651, guid: b28e484ca9693f4c69647550ff47ff4c, type: 3}
+      propertyPath: m_InferenceDevice
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 3090017506403457651, guid: b28e484ca9693f4c69647550ff47ff4c, type: 3}
+      propertyPath: m_BrainParameters.VectorObservationSize
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 3090017506403457651, guid: b28e484ca9693f4c69647550ff47ff4c, type: 3}
+      propertyPath: m_BrainParameters.NumStackedVectorObservations
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 3470106827353282434, guid: b28e484ca9693f4c69647550ff47ff4c, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -218,6 +246,26 @@ PrefabInstance:
     - target: {fileID: 3470106827353282434, guid: b28e484ca9693f4c69647550ff47ff4c, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3740350924798598812, guid: b28e484ca9693f4c69647550ff47ff4c, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8703241010178880108, guid: b28e484ca9693f4c69647550ff47ff4c, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8703241010178880108, guid: b28e484ca9693f4c69647550ff47ff4c, type: 3}
+      propertyPath: targetPosition.x
+      value: -4
+      objectReference: {fileID: 0}
+    - target: {fileID: 8703241010178880108, guid: b28e484ca9693f4c69647550ff47ff4c, type: 3}
+      propertyPath: targetPosition.z
+      value: -4
+      objectReference: {fileID: 0}
+    - target: {fileID: 8703241010178880108, guid: b28e484ca9693f4c69647550ff47ff4c, type: 3}
+      propertyPath: initPositionOnBegin
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
