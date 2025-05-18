@@ -1,5 +1,8 @@
 using UnityEngine;
 
+/// <summary>
+/// Contains methods to spawn objects in the scene
+/// </summary>
 public class MazeSpawner : MonoBehaviour
 {
     [Header("Script Reference")]

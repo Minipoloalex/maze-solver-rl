@@ -4,6 +4,10 @@ using Unity.MLAgents.Sensors;
 using Unity.MLAgents.Actuators;
 using Random = UnityEngine.Random;
 
+
+/// <summary>
+/// Simple agent to balance the ball: simple rewards (on top of balancing platform or not)
+/// </summary>
 public class BalancePlatformAgent : PlatformAgent
 {
     public override void OnEpisodeBegin()

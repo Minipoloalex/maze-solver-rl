@@ -4,6 +4,10 @@ using Unity.MLAgents.Sensors;
 using Unity.MLAgents.Actuators;
 using Random = UnityEngine.Random;
 
+
+/// <summary>
+/// Agent to balance the ball: considers how close the ball is to a target (and whether it fell down)
+/// </summary>
 public class BalancePlatformAgentToTarget : PlatformAgent
 {
     // position relative to the plane (we take into account orientation)
@@ -105,7 +109,7 @@ public class BalancePlatformAgentToTarget : PlatformAgent
         float dz = (z - targetPosition.z);
 
         // the larger the distance, the least reward should be given
-        float distSquared = dx * dx + dz * dz;        
+        float distSquared = dx * dx + dz * dz;
 
         // Normalize and clamp reward to range [0, 1]
         return -Mathf.Clamp01(distSquared / maxDistSquared);

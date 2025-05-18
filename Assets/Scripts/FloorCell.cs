@@ -1,6 +1,9 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 
+/// <summary>
+/// Controls clicks on empty cells (to create new walls)
+/// </summary>
 [RequireComponent(typeof(Collider))]
 public class FloorCell : MonoBehaviour,
                          IPointerEnterHandler,

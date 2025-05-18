@@ -4,6 +4,9 @@ using Unity.MLAgents.Sensors;
 using Unity.MLAgents.Actuators;
 using Random = UnityEngine.Random;
 
+/// <summary>
+/// Generic platform agent parent class (to be inherited by others)
+/// </summary>
 public class PlatformAgent : Agent
 {
     public GameObject ball;

@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// Stores which cells currently contain a wall.
+/// Stores the maze grid. Basically, which cells currently contain a wall.
 /// </summary>
 [RequireComponent(typeof(MazeFromAscii))]
 public class MazeRuntimeGrid : MonoBehaviour

@@ -1,6 +1,10 @@
 using UnityEngine;
 using UnityEngine.EventSystems;   // for pointer interfaces
 
+
+/// <summary>
+/// Controls clicks on wall cells (to destroy the walls)
+/// </summary>
 [RequireComponent(typeof(Collider))]
 public class WallCell : MonoBehaviour,
                         IPointerEnterHandler,
