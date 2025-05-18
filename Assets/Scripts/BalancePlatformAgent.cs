@@ -4,17 +4,8 @@ using Unity.MLAgents.Sensors;
 using Unity.MLAgents.Actuators;
 using Random = UnityEngine.Random;
 
-public class BalancePlatformAgentScript : Agent
+public class BalancePlatformAgent : PlatformAgent
 {
-    public GameObject ball;
-    Rigidbody m_BallRb;
-
-    public override void Initialize()
-    {
-        m_BallRb = ball.GetComponent<Rigidbody>();
-        // m_ResetParams = Academy.Instance.EnvironmentParameters;
-        // SetResetParameters();
-    }
     public override void OnEpisodeBegin()
     {
         gameObject.transform.rotation = new Quaternion(0f, 0f, 0f, 0f);

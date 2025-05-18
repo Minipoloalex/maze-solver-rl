@@ -59,10 +59,13 @@ public class MazeFromAscii : MonoBehaviour
         GameObject wall = Instantiate(wallPrefab, pos, Quaternion.identity, parent);
         wall.transform.localScale = Vector3.Scale(wall.transform.localScale, wallScale);
     }
-    private void SpawnBall(Vector3 pos)
+    private void SpawnBall(Vector3 pos, GameObject platformAgent)
     {
         GameObject ball = Instantiate(ballPrefab, pos, Quaternion.identity, transform);
         ball.transform.localScale = Vector3.Scale(ball.transform.localScale, ballScale);
+
+        PlatformAgent agent = platformAgent.GetComponent<PlatformAgent>();
+        agent.Init(ball);
     }
 
     [ContextMenu("Build From Config")]
@@ -111,7 +114,7 @@ public class MazeFromAscii : MonoBehaviour
                             Debug.LogError("Cannot spawn two balls at once! (at least not yet)");
                         }
                         foundBall = true;
-                        SpawnBall(pos);
+                        SpawnBall(pos, platformAgent);
                         break;
                     default:
                         Debug.LogWarning($"Unknown char '{c}' at {x},{z}: skipping");

@@ -4,11 +4,8 @@ using Unity.MLAgents.Sensors;
 using Unity.MLAgents.Actuators;
 using Random = UnityEngine.Random;
 
-public class BalancePlatformAgentToTarget : Agent
+public class BalancePlatformAgentToTarget : PlatformAgent
 {
-    public GameObject ball;
-    Rigidbody m_BallRb;
-
     // position relative to the plane (we take into account orientation)
     // relative position should have y = 0
     public Vector3 targetPosition;
@@ -20,7 +17,7 @@ public class BalancePlatformAgentToTarget : Agent
 
     public override void Initialize()
     {
-        m_BallRb = ball.GetComponent<Rigidbody>();
+        base.Initialize();
 
         Vector3 scale = gameObject.transform.localScale;
         maxDistSquared = (scale.x * scale.x) + (scale.z * scale.z);
