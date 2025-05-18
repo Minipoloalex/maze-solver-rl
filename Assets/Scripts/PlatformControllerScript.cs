@@ -18,4 +18,3 @@ public class PlatformControllerScript : MonoBehaviour
         transform.Rotate(tiltX, 0f, tiltZ, Space.Self); 
     }
 }
-

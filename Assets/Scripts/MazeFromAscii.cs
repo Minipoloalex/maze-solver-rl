@@ -5,23 +5,20 @@ using UnityEngine;
 
 /// <summary>
 /// Reads an ASCII map where '#' = solid wall, ' ' (space) = walkable floor, 'B' = ball (only one should exist)
-/// then instantiates prefabs in EDIT-TIME so you can tweak, bake, or light it.
+/// then instantiates prefabs in EDIT-TIME so that we can easily see the results
 /// </summary>
 [ExecuteInEditMode]
 public class MazeFromAscii : MonoBehaviour
 {
     public TextAsset asciiMaze;
+    [Header("Script Reference")]
+    public MazeSpawner spawner;
 
-    [Header("Prefabs")]
-    public GameObject platformAgentPrefab;
-    public GameObject floorPrefab;
-    public GameObject ballPrefab;   // sphere: radius = 1
-    public GameObject wallPrefab;    // 1x1x1 cube
+    // Fixed information about maze
+    [HideInInspector] public int rowCount;
+    [HideInInspector] public int colCount;
 
-    [Header("Scales")]
-    public Vector3 wallScale;
-    public Vector3 ballScale;
-    private void CheckColumnSizes(string[] rows, int colCount)
+    private void CheckColumnSizes(string[] rows)
     {
         foreach (string row in rows)
         {
@@ -30,42 +27,6 @@ public class MazeFromAscii : MonoBehaviour
                 Debug.LogError("All rows must have the same size! Ensure there is no empty line at the end of the file.");
             }
         }
-    }
-    private GameObject SpawnPlatformAgent()
-    {
-        GameObject platformAgent = Instantiate(platformAgentPrefab, Vector3.zero, Quaternion.identity, transform);
-        return platformAgent;
-    }
-    private GameObject SpawnFloor(int rowCount, int colCount, Transform parent)
-    {
-        float floorScaleX = wallScale.x * colCount;
-        float floorScaleZ = wallScale.z * rowCount;
-
-        Vector3 floorScale = new Vector3(floorScaleX, 0.1f, floorScaleZ);
-
-        GameObject floorAgent = Instantiate(floorPrefab, Vector3.zero, Quaternion.identity, parent);
-        floorAgent.transform.localScale = floorScale;
-        return floorAgent;
-    }
-    private GameObject SpawnWallsContainer(Transform parent)
-    {
-        GameObject wallsContainer = new GameObject("Walls");
-        wallsContainer.transform.SetParent(parent);
-        wallsContainer.transform.localPosition = Vector3.zero;
-        return wallsContainer;
-    }
-    private void SpawnWall(Vector3 pos, Transform parent)
-    {
-        GameObject wall = Instantiate(wallPrefab, pos, Quaternion.identity, parent);
-        wall.transform.localScale = Vector3.Scale(wall.transform.localScale, wallScale);
-    }
-    private void SpawnBall(Vector3 pos, GameObject platformAgent)
-    {
-        GameObject ball = Instantiate(ballPrefab, pos, Quaternion.identity, transform);
-        ball.transform.localScale = Vector3.Scale(ball.transform.localScale, ballScale);
-
-        PlatformAgent agent = platformAgent.GetComponent<PlatformAgent>();
-        agent.Init(ball);
     }
 
     [ContextMenu("Build From Config")]
@@ -78,34 +39,45 @@ public class MazeFromAscii : MonoBehaviour
             return;
         }
 
-        ClearChildren();
+        spawner.ClearSpawnedChildren();
 
         string[] rows = asciiMaze.text.Replace("\r", "").Split('\n');
-        int rowCount = rows.Length;
-        int colCount = rows[0].Length;
-        CheckColumnSizes(rows, colCount);
+        rowCount = rows.Length;
+        colCount = rows[0].Length;
+        CheckColumnSizes(rows);
+        spawner.InitGrid(rowCount, colCount);
 
-        GameObject platformAgent = SpawnPlatformAgent();
-        GameObject floor = SpawnFloor(rowCount, colCount, platformAgent.transform);
-        GameObject wallsContainer = SpawnWallsContainer(platformAgent.transform);
+        GameObject platformAgent = spawner.SpawnPlatformAgent();
+        spawner.platformAgent = platformAgent;
+
+        GameObject floor = spawner.SpawnFloor(rowCount, colCount, platformAgent.transform);
+
+        GameObject wallsContainer = spawner.SpawnWallsContainer(platformAgent.transform);
+        spawner.wallsParent = wallsContainer;
+
+        GameObject floorTriggersContainer = spawner.SpawnFloorTriggersContainer(platformAgent.transform);
+        spawner.triggersParent = floorTriggersContainer;
 
         // x are columns, z are rows
-        float zShift = ((rowCount - 1) / 2.0f) * wallScale.z;
-        float xShift = ((colCount - 1) / 2.0f) * wallScale.x;
+        float zShift = ((rowCount - 1) / 2.0f) * spawner.wallScale.z;
+        float xShift = ((colCount - 1) / 2.0f) * spawner.wallScale.x;
         bool foundBall = false;
-        for (int z = 0; z < rowCount; z++)
-        {
-            for (int x = 0; x < colCount; x++)
-            {
-                char c = rows[z][x];
-                Vector3 pos = new Vector3(x - xShift, 0.5f, (rowCount - 1 - z) - zShift);   // flip Z so row 0 is top
-                switch (c)
+        for (int r = 0; r < rowCount; r++)
+        {   // z
+            for (int c = 0; c < colCount; c++)
+            {   // x
+                char cell = rows[r][c];
+                Vector3 pos = new Vector3(c - xShift, 0.5f, (rowCount - 1 - r) - zShift);   // flip Z so row 0 is top
+                Vector2Int posId = new Vector2Int(r, c);
+                switch (cell)
                 {
                     case ' ':
-                        // do nothing (floor is simply a large tile)
+                        // floor is a large tile, but we also add here a trigger
+                        // to allow adding walls
+                        spawner.SpawnFloorTrigger(pos, posId);
                         break;
                     case '#':
-                        SpawnWall(pos, wallsContainer.transform);
+                        spawner.SpawnWall(pos, posId);
                         break;
                     case 'B':
                         // Going to be where we define the ball
@@ -114,25 +86,16 @@ public class MazeFromAscii : MonoBehaviour
                             Debug.LogError("Cannot spawn two balls at once! (at least not yet)");
                         }
                         foundBall = true;
-                        SpawnBall(pos, platformAgent);
+                        spawner.SpawnBall(pos);
                         break;
                     default:
-                        Debug.LogWarning($"Unknown char '{c}' at {x},{z}: skipping");
+                        Debug.LogWarning($"Unknown char '{c}' at {r},{c}: skipping");
                         break;
                 }
             }
         }
 
         UnityEditor.SceneView.RepaintAll();   // refresh scene view immediately
-#endif
-    }
-
-    void ClearChildren()
-    {
-#if UNITY_EDITOR
-        // DestroyImmediate works in edit mode
-        for (int i = transform.childCount - 1; i >= 0; i--)
-            DestroyImmediate(transform.GetChild(i).gameObject);
 #endif
     }
 }
