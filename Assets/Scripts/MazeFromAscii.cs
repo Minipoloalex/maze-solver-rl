@@ -87,6 +87,7 @@ public class MazeFromAscii : MonoBehaviour
                         }
                         foundBall = true;
                         spawner.SpawnBall(pos);
+                        spawner.SpawnFloorTrigger(pos, posId);  // also spawn a trigger (allows spawning walls in the initial ball position)
                         break;
                     default:
                         Debug.LogWarning($"Unknown char '{c}' at {r},{c}: skipping");

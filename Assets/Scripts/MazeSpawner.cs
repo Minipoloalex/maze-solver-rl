@@ -59,7 +59,7 @@ public class MazeSpawner : MonoBehaviour
 
     public GameObject SpawnWall(Vector3 pos, Vector2Int posId)
     {
-        var wall = Instantiate(wallPrefab, pos, Quaternion.identity, wallsParent.transform);
+        var wall = Instantiate(wallPrefab, pos, wallsParent.transform.rotation, wallsParent.transform);
         wall.transform.localScale = Vector3.Scale(wall.transform.localScale, wallScale);
 
         var wallCell = wall.GetComponent<WallCell>();
@@ -83,7 +83,7 @@ public class MazeSpawner : MonoBehaviour
 
     public GameObject SpawnFloorTrigger(Vector3 pos, Vector2Int posId)
     {
-        var trigger = Instantiate(floorTriggerPrefab, pos, Quaternion.identity, triggersParent.transform);
+        var trigger = Instantiate(floorTriggerPrefab, pos, triggersParent.transform.rotation, triggersParent.transform);
         trigger.transform.localScale = Vector3.Scale(trigger.transform.localScale, wallScale);
 
         var script = trigger.GetComponent<FloorCell>();

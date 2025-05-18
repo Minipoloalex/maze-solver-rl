@@ -10,8 +10,11 @@ public class MazeRuntimeGrid : MonoBehaviour
     [System.Serializable]
     public class MazeRow    // allow serializing multi-dimensional array
     {
-        public int[] cells;
-
+        [SerializeField] private int[] cells;
+        public MazeRow(int colCount)
+        {
+            cells = new int[colCount];
+        }
         public int this[int index]
         {
             get => cells[index];
@@ -20,31 +23,20 @@ public class MazeRuntimeGrid : MonoBehaviour
         public int Length => cells.Length;
     }
 
-    public MazeRow[] maze;    // maybe in the future, we might want to mark exits
+    [HideInInspector] public MazeRow[] maze;    // we might want to mark exits in the future
 
     public void Init(int rowCount, int colCount)   // my init function
     {
         maze = new MazeRow[rowCount];
         for (int r = 0; r < rowCount; r++)
         {
-            maze[r] = new MazeRow
-            {
-                cells = new int[colCount]
-            };
+            maze[r] = new MazeRow(colCount);
         }
     }
 
     public void AddWall(Vector2Int posId)
     {
-        Debug.Log("Heelo");
-        Debug.Log(posId);
-        Debug.Log(posId.x + " " + posId.y);
-        if (maze == null)
-        {
-            Debug.Log("Maze is unexpectedly null!");
-        }
         maze[posId.x][posId.y] = 1;
-        Debug.Log("After");
         // optional: raise event → update pathfinding, save-game, etc.
     }
 
