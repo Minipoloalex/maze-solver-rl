@@ -57,14 +57,14 @@ public class MazeRuntimeGrid
         }
     }
 
-    public bool HasWall(Vector2Int posId)
+    public bool IsWall(Vector2Int posId)
     {
         if (IsWithinBounds(posId))
         {
             return maze[posId.x][posId.y];
         }
         // Out of bounds check => return true (the same as having a wall)
-        Debug.LogWarning($"HasWall: Position {posId} is out of bounds. Returning true (treat as wall) by default.");
+        Debug.LogWarning($"IsWall: Position {posId} is out of bounds. Returning true (treat as wall) by default.");
         return true;
     }
 

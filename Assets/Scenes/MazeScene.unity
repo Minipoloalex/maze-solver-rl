@@ -484,6 +484,7 @@ GameObject:
   - component: {fileID: 1713279464}
   - component: {fileID: 1713279467}
   - component: {fileID: 1713279465}
+  - component: {fileID: 1713279468}
   m_Layer: 6
   m_Name: Maze
   m_TagString: Untagged
@@ -541,9 +542,30 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   generateRandomMaze: 1
   allowRuntimeModifications: 1
+  useRandomSeedForGenerator: 1
+  mazeGeneratorSeed: 0
+  mazeGeneratorDifficulty: 0.2
+  mazeGeneratorMinWidth: 10
+  mazeGeneratorMaxWidth: 20
+  mazeGeneratorMinHeight: 5
+  mazeGeneratorMaxHeight: 5
+  exitPosId: {x: 0, y: 0}
   spawner: {fileID: 0}
   wallsOn: {fileID: 0}
   wallsOff: {fileID: 0}
+--- !u!114 &1713279468
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1713279462}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 08a0e4f6a3210853590acd6b7dc90d59, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  asciiMaze: {fileID: 4900000, guid: 48c84696f630b5b07a75fe61abc73a40, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

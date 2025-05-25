@@ -5,69 +5,56 @@ public class MazeController : MonoBehaviour
 {
     [Header("Maze Parameters")]
     public bool generateRandomMaze = false;
-    public bool allowRuntimeModifications = true; // TODO: in case clicker stuff is slow, do not spawn it
+    public bool allowRuntimeModifications = true; // TODO: in case clicker stuff is slow, do not spawn it (not implemented yet)
 
-    public MazeRuntimeGrid grid;
+    [Header("Maze Random Generation Parameters")]
+    public bool useRandomSeedForGenerator = true;
+    public int mazeGeneratorSeed = 0;
+    public float mazeGeneratorDifficulty = 0.2f;
+    [Header("Maze width")]
+    public int mazeGeneratorMinWidth = 5;
+    public int mazeGeneratorMaxWidth = 10;
+    [Header("Maze height")]
+    public int mazeGeneratorMinHeight = 5;
+    public int mazeGeneratorMaxHeight = 10;
+
+    [Header("Generated Maze Information")]
+    [Tooltip("Do not manually change these parameters")]
     public Vector2Int exitPosId;
+    public MazeRuntimeGrid grid;
 
     [HideInInspector] public MazeSpawner spawner;
-
     [HideInInspector] public GameObject wallsOn;
     [HideInInspector] public GameObject wallsOff;
 
     public Vector2Int Generate()
     {
+        Vector2Int ballPosId;
+
         // Generate the Maze
         if (generateRandomMaze)
         {
-            // TODO
+            int currentSeed = useRandomSeedForGenerator ? UnityEngine.Random.Range(int.MinValue, int.MaxValue) : mazeGeneratorSeed;
 
+            // Ensure positive dimensions for the generator
+            int genWidth = Mathf.Max(mazeGeneratorMinWidth, mazeGeneratorMaxWidth);
+            int genHeight = Mathf.Max(mazeGeneratorMinHeight, mazeGeneratorMaxHeight);
 
-            // TODO: must include random generated maze and others
-            // after initializing the maze, the walls need to be added in
-            this.grid = new MazeRuntimeGrid(10, 10);
-            grid.AddWall(new (1, 8));
-            grid.AddWall(new (1, 7));
-            grid.AddWall(new (1, 6));
-            grid.AddWall(new (1, 5));
-            grid.AddWall(new (1, 4));
-            grid.AddWall(new (1, 3));
-            grid.AddWall(new (1, 2));
-            grid.AddWall(new (1, 1));
-            grid.AddWall(new (2, 1));
-            grid.AddWall(new (3, 1));
-            grid.AddWall(new (4, 1));
-            grid.AddWall(new (5, 1));
-            grid.AddWall(new (6, 1));
-            grid.AddWall(new (7, 1));
-            grid.AddWall(new (8, 1));
-            
-            grid.AddWall(new (8, 8));
-            grid.AddWall(new (8, 7));
-            grid.AddWall(new (8, 6));
-            grid.AddWall(new (8, 5));
-            grid.AddWall(new (8, 4));
-            grid.AddWall(new (8, 3));
-            grid.AddWall(new (8, 2));
-            grid.AddWall(new (2, 8));
-            grid.AddWall(new (3, 8));
-            grid.AddWall(new (4, 8));
-            grid.AddWall(new (5, 8));
-            grid.AddWall(new (6, 8));
-            grid.AddWall(new (7, 8));
-            grid.AddWall(new (8, 8));
-
-            exitPosId = new Vector2Int(3, 3);
-
-            return new Vector2Int(5, 5);
+            this.grid = MazeGenerator.GenerateMazeForRuntimeGrid(
+                genWidth,
+                genHeight,
+                currentSeed,
+                mazeGeneratorDifficulty,
+                out ballPosId,
+                out exitPosId
+            );
         }
         else
         {
-            Vector2Int ballPosId;
             AsciiMazeLoader mazeLoader = gameObject.GetComponent<AsciiMazeLoader>();
             this.grid = mazeLoader.ReadGrid(out ballPosId, out exitPosId);
-            return ballPosId;
         }
+        return ballPosId;
     }
 
     public void SetupSpawner()

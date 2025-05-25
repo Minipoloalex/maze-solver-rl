@@ -5,25 +5,17 @@ using UnityEngine;
 /// <summary>
 /// Generates a 2‑D rectangular maze using depth‑first search (recursive back‑tracker) and
 /// optionally increases the branching factor / loopiness according to a 0–1 <c>difficulty</c> value.
-///
-/// A value of 0 produces an almost straight corridor; 1 produces a very loopy labyrinth.
 /// The generator is deterministic for the same <c>seed</c> so you can replay episodes.
-///
-/// Cell indices: (0,0) is bottom‑left, +X (columns) to the right, +Y (rows) upwards.
-/// (Internally, we use x for columns, y for rows in the 2D array for convention with grid[width, height])
-/// The resulting int[,] grid stores bit‑flags per cell:
-/// 1 = wall on +X (East)
-/// 2 = wall on +Y (North)  <- Changed from Z for consistency if using 2D array indices
-/// 4 = wall on -X (West)
-/// 8 = wall on -Y (South)  <- Changed from Z
-/// With this convention neighbouring cells share the same edge bit.
+/// Cell indices for internal int[,] grid: (0,0) is bottom‑left, +X (columns) to the right, +Y (rows) upwards.
+/// The resulting int[,] grid stores bit‑flags per cell.
+/// Provides a higher-level function to convert this int[,] grid to a MazeRuntimeGrid.
 /// </summary>
 public static class MazeGenerator
 {
     [Flags]
-    public enum Wall : byte // Made public for easier use by other classes if needed
+    public enum Wall : byte
     {
-        None = 0, // Useful for clarity
+        None = 0,
         East = 1,  // +X
         North = 2, // +Y
         West = 4,  // -X
@@ -31,36 +23,27 @@ public static class MazeGenerator
         All = East | North | West | South
     }
 
-    // DIRS[0] is East, DIRS[1] is North, DIRS[2] is West, DIRS[3] is South
     private static readonly Vector2Int[] DIRS =
     {
-        new Vector2Int(1, 0),  // East (+X)
-        new Vector2Int(0, 1),  // North (+Y)
-        new Vector2Int(-1,0),  // West (-X)
-        new Vector2Int(0,-1)   // South (-Y)
+        new Vector2Int(1, 0), new Vector2Int(0, 1), new Vector2Int(-1,0), new Vector2Int(0,-1)
     };
-
-    // Corresponding walls for each direction
     private static readonly Wall[] DIR_TO_WALL =
     {
         Wall.East, Wall.North, Wall.West, Wall.South
     };
-
-    // Opposite walls for each direction
     private static readonly Wall[] OPPOSITE_WALL =
     {
         Wall.West, Wall.South, Wall.East, Wall.North
     };
 
-
     /// <summary>
-    /// Generate a maze.
+    /// Generates the low-level maze data (wall flags per cell).
     /// </summary>
-    /// <param name="width">Number of cells on X (columns)</param>
-    /// <param name="height">Number of cells on Y (rows)</param>
-    /// <param name="seed">Random seed</param>
-    /// <param name="difficulty">0–1. 0 = straighter corridors, 1 = many loops</param>
-    /// <returns>2‑D int array (grid[column, row]) where bits represent remaining walls per cell</returns>
+    /// <param name="cellWidth">Number of cells on X (columns) for the generator's internal grid.</param>
+    /// <param name="cellHeight">Number of cells on Y (rows) for the generator's internal grid.</param>
+    /// <param name="seed">Random seed.</param>
+    /// <param name="difficulty">0–1. 0 = straighter corridors, 1 = many loops.</param>
+    /// <returns>2‑D int array (grid[column, row]) where bits represent remaining walls per cell.</returns>
     public static int[,] Generate(int cellWidth, int cellHeight, int seed, float difficulty)
     {
         if (cellWidth <= 0 || cellHeight <= 0)
@@ -70,35 +53,26 @@ public static class MazeGenerator
         }
 
         difficulty = Mathf.Clamp01(difficulty);
-        // grid[column, row]
-        int[,] grid = new int[cellWidth, cellHeight];
+        int[,] grid = new int[cellWidth, cellHeight]; // grid[column, row]
         bool[,] visited = new bool[cellWidth, cellHeight];
         var rng = new System.Random(seed);
 
-        // Initialize grid with all walls up
         for (int c = 0; c < cellWidth; c++)
-        {
             for (int r = 0; r < cellHeight; r++)
-            {
                 grid[c, r] = (int)Wall.All;
-            }
-        }
 
-        // --- Depth‑first search – carve perfect maze ---
         var stack = new Stack<Vector2Int>();
         Vector2Int start = new Vector2Int(rng.Next(cellWidth), rng.Next(cellHeight));
         stack.Push(start);
-        visited[start.x, start.y] = true; // x is column, y is row
+        visited[start.x, start.y] = true;
 
         while (stack.Count > 0)
         {
-            Vector2Int current = stack.Peek(); // current.x = column, current.y = row
-
+            Vector2Int current = stack.Peek();
             List<int> unvisitedDirIndices = new List<int>(4);
             for (int dirIdx = 0; dirIdx < 4; dirIdx++)
             {
                 Vector2Int neighbor = current + DIRS[dirIdx];
-                // Check bounds (neighbor.x is column, neighbor.y is row)
                 if (neighbor.x >= 0 && neighbor.x < cellWidth &&
                     neighbor.y >= 0 && neighbor.y < cellHeight &&
                     !visited[neighbor.x, neighbor.y])
@@ -109,41 +83,30 @@ public static class MazeGenerator
 
             if (unvisitedDirIndices.Count == 0)
             {
-                // Back‑track
                 stack.Pop();
             }
             else
             {
-                // Pick random unvisited neighbor
                 int chosenDirIdx = unvisitedDirIndices[rng.Next(unvisitedDirIndices.Count)];
                 Vector2Int next = current + DIRS[chosenDirIdx];
-
-                // Remove wall between current and next
                 RemoveWallBetween(grid, current, next, chosenDirIdx);
-
                 visited[next.x, next.y] = true;
                 stack.Push(next);
             }
         }
 
-        // --- Increase branching / add loops based on difficulty ---
-        // More difficulty = more loops.
-        // Max loops could be roughly (width-1)*height + (height-1)*width - (width*height-1) = total internal edges - edges in spanning tree
-        // Let's try to remove a percentage of remaining internal walls.
-        int potentialExtraLoops = (cellWidth - 1) * cellHeight + (cellHeight - 1) * cellWidth; // Max possible internal walls
-        int extraConnectionsToRemove = Mathf.RoundToInt(difficulty * potentialExtraLoops * 0.25f); // Remove 25% of potential loops at max difficulty
+        int potentialExtraLoops = (cellWidth - 1) * cellHeight + (cellHeight - 1) * cellWidth;
+        int extraConnectionsToRemove = Mathf.RoundToInt(difficulty * potentialExtraLoops * 0.25f);
 
         for (int i = 0; i < extraConnectionsToRemove; i++)
         {
-            // Pick random cell that is not on the border (to ensure we are picking an internal wall)
-            if (cellWidth <= 1 && cellHeight <= 1) break; // No internal walls
+            if (cellWidth <= 1 && cellHeight <= 1) break;
+            int c = (cellWidth > 1) ? rng.Next(cellWidth - 1) : 0; // Pick column for East/North removal
+            int r = (cellHeight > 1) ? rng.Next(cellHeight - 1) : 0; // Pick row for East/North removal
+            // If cellWidth = 1, c will be 0. If cellHeight = 1, r will be 0.
 
-            int c = (cellWidth > 1) ? rng.Next(cellWidth - 1) : 0;
-            int r = (cellHeight > 1) ? rng.Next(cellHeight - 1) : 0;
             Vector2Int cell = new Vector2Int(c, r);
 
-            // Pick a random internal wall direction (East or North)
-            // If we pick cell (c,r), we can try to remove its East wall (to cell c+1, r) or North wall (to cell c, r+1)
             List<int> possibleDirsToRemove = new List<int>();
             if (c < cellWidth - 1) possibleDirsToRemove.Add(0); // East
             if (r < cellHeight - 1) possibleDirsToRemove.Add(1); // North
@@ -153,34 +116,141 @@ public static class MazeGenerator
             int dirIdxToRemove = possibleDirsToRemove[rng.Next(possibleDirsToRemove.Count)];
             Vector2Int neighbor = cell + DIRS[dirIdxToRemove];
 
-            // Check if wall actually exists
             if ((grid[cell.x, cell.y] & (int)DIR_TO_WALL[dirIdxToRemove]) != 0)
             {
                 RemoveWallBetween(grid, cell, neighbor, dirIdxToRemove);
             }
         }
 
-
-        // --- Prune dead ends for lower difficulty (difficulty < 0.3) ---
-        // Lower difficulty = more pruning = straighter paths.
         if (difficulty < 0.3f)
         {
-            // Probability of pruning a dead-end. Higher when difficulty is lower.
-            float pruneProbability = (0.3f - difficulty) * 2f; // Max 0.6 probability
+            float pruneProbability = (0.3f - difficulty) * 2f;
             PruneDeadEnds(grid, cellWidth, cellHeight, rng, pruneProbability);
         }
 
         return grid;
     }
 
+    /// <summary>
+    /// Generates a maze and converts it into a MazeRuntimeGrid, also providing ball and exit positions.
+    /// </summary>
+    /// <param name="generatorCellWidth">Number of cells on X (columns) for the base maze generation.</param>
+    /// <param name="generatorCellHeight">Number of cells on Y (rows) for the base maze generation.</param>
+    /// <param name="seed">Random seed.</param>
+    /// <param name="difficulty">0–1. 0 = straighter corridors, 1 = many loops.</param>
+    /// <param name="ballPosRuntime">Output: The ball's starting position in MazeRuntimeGrid coordinates (row, col).</param>
+    /// <param name="exitPosRuntime">Output: The exit's position in MazeRuntimeGrid coordinates (row, col).</param>
+    /// <returns>A MazeRuntimeGrid representing the generated maze.</returns>
+    public static MazeRuntimeGrid GenerateMazeForRuntimeGrid(
+        int generatorCellWidth,
+        int generatorCellHeight,
+        int seed,
+        float difficulty,
+        out Vector2Int ballPosRuntime,
+        out Vector2Int exitPosRuntime)
+    {
+        // 1. Generate the low-level maze data
+        // Note: generatorCellWidth and generatorCellHeight must be at least 1.
+        int genWidth = Mathf.Max(1, generatorCellWidth);
+        int genHeight = Mathf.Max(1, generatorCellHeight);
+
+        int[,] mazeData = Generate(genWidth, genHeight, seed, difficulty);
+
+        // 2. Determine the generator's start cell (used for ball position)
+        // The DFS in Generate() picks a random start cell. We replicate that first RNG pick.
+        System.Random tempRngForStart = new System.Random(seed);
+        Vector2Int generatorStartCell = new Vector2Int(tempRngForStart.Next(genWidth), tempRngForStart.Next(genHeight));
+        // generatorStartCell.x is column, generatorStartCell.y is row in mazeData's context
+
+        // 3. Define MazeRuntimeGrid dimensions
+        // Each cell from mazeData maps to a 2x2 area, plus boundary.
+        // MazeRuntimeGrid coordinates are (row, col).
+        int runtimeGridRows = genHeight * 2 + 1;
+        int runtimeGridCols = genWidth * 2 + 1;
+        MazeRuntimeGrid runtimeGrid = new MazeRuntimeGrid(runtimeGridRows, runtimeGridCols);
+
+        // 4. Initialize MazeRuntimeGrid: Make all cells walls initially.
+        // (Assuming MazeRuntimeGrid constructor defaults to floor, so we add walls)
+        for (int r_rt = 0; r_rt < runtimeGridRows; r_rt++)
+        {
+            for (int c_rt = 0; c_rt < runtimeGridCols; c_rt++)
+            {
+                runtimeGrid.AddWall(new Vector2Int(r_rt, c_rt));
+            }
+        }
+
+        // 5. Carve paths in MazeRuntimeGrid based on mazeData
+        // mazeData[col, row] stores wall flags.
+        // Vector2Int for MazeRuntimeGrid is (row, col).
+        for (int gen_r = 0; gen_r < genHeight; gen_r++) // Iterate generator's rows
+        {
+            for (int gen_c = 0; gen_c < genWidth; gen_c++) // Iterate generator's columns
+            {
+                // Center of the current generator cell in the runtime grid
+                int rt_row_center = gen_r * 2 + 1;
+                int rt_col_center = gen_c * 2 + 1;
+
+                // This cell itself is a path
+                runtimeGrid.RemoveWall(new Vector2Int(rt_row_center, rt_col_center));
+
+                // If no East wall in generator cell, carve path to the East in runtime grid
+                if ((mazeData[gen_c, gen_r] & (int)Wall.East) == 0)
+                {
+                    if (rt_col_center + 1 < runtimeGridCols) // Boundary check
+                    {
+                        runtimeGrid.RemoveWall(new Vector2Int(rt_row_center, rt_col_center + 1));
+                    }
+                }
+
+                // If no North wall in generator cell, carve path to the North in runtime grid
+                if ((mazeData[gen_c, gen_r] & (int)Wall.North) == 0)
+                {
+                    if (rt_row_center + 1 < runtimeGridRows) // Boundary check
+                    {
+                        // North in generator (increasing Y/row) means increasing row in runtime grid.
+                        runtimeGrid.RemoveWall(new Vector2Int(rt_row_center + 1, rt_col_center));
+                    }
+                }
+                // South and West walls are implicitly handled by connections from neighboring cells
+                // (e.g. cell (c-1,r)'s East wall removal carves current cell's West passage)
+            }
+        }
+
+        // 6. Set ball position (maps from generator's start cell)
+        // generatorStartCell.x is col, .y is row. MazeRuntimeGrid uses (row, col).
+        ballPosRuntime = new Vector2Int(generatorStartCell.y * 2 + 1, generatorStartCell.x * 2 + 1);
+
+        // 7. Set exit position (e.g., map from a corner of the generator's grid)
+        // Default to top-right corner of the generator grid
+        int exit_gen_r = genHeight - 1;
+        int exit_gen_c = genWidth - 1;
+
+        // If the start cell (ball) is the same as this default exit, pick another corner for exit,
+        // unless it's a 1x1 generator grid where they must be the same.
+        if (generatorStartCell.x == exit_gen_c && generatorStartCell.y == exit_gen_r && (genWidth > 1 || genHeight > 1))
+        {
+            exit_gen_r = 0; // Move to bottom-left
+            exit_gen_c = 0;
+        }
+
+        exitPosRuntime = new Vector2Int(exit_gen_r * 2 + 1, exit_gen_c * 2 + 1);
+
+        // Ensure ball and exit positions are actually paths (they should be by construction)
+        if (runtimeGrid.IsWall(ballPosRuntime))
+            Debug.LogWarning($"Generated ball position {ballPosRuntime} is a wall. Review conversion logic. gen_start=({generatorStartCell.x},{generatorStartCell.y})");
+        if (runtimeGrid.IsWall(exitPosRuntime))
+            Debug.LogWarning($"Generated exit position {exitPosRuntime} is a wall. Review conversion logic. gen_exit=({exit_gen_c},{exit_gen_r})");
+
+
+        return runtimeGrid;
+    }
+
+
     #region helpers
 
     private static void RemoveWallBetween(int[,] grid, Vector2Int cellA, Vector2Int cellB, int dirIdxFromAtoB)
     {
-        // cellA.x, cellA.y are col, row
-        // Remove wall from cellA
         grid[cellA.x, cellA.y] &= ~(int)DIR_TO_WALL[dirIdxFromAtoB];
-        // Remove corresponding wall from cellB
         grid[cellB.x, cellB.y] &= ~(int)OPPOSITE_WALL[dirIdxFromAtoB];
     }
 
@@ -189,48 +259,33 @@ public static class MazeGenerator
         bool changedInPass;
         List<Vector2Int> deadEnds = new List<Vector2Int>();
 
-        // It's often better to iterate multiple times or until no changes,
-        // as pruning one dead-end might create another.
-        // However, for simplicity and performance, one pass with a check or a few fixed passes can be okay.
-        // For this version, let's collect all dead-ends first, then decide to prune.
-        // This avoids issues where pruning one affects the dead-end status of its neighbor in the same loop.
-
-        for (int repeat = 0; repeat < 2; repeat++) // Repeat pruning a couple of times
+        for (int repeat = 0; repeat < 2; repeat++)
         {
             deadEnds.Clear();
             for (int c = 0; c < cellWidth; c++)
             {
                 for (int r = 0; r < cellHeight; r++)
                 {
-                    // Skip border cells if you want to ensure entry/exit points are not removed,
-                    // or handle entry/exit explicitly. For now, we consider all cells.
-                    // if (c == 0 || c == cellWidth - 1 || r == 0 || r == cellHeight - 1) continue;
-
-
                     int cellWallData = grid[c, r];
                     int openDirections = 0;
                     for (int dir = 0; dir < 4; dir++)
                     {
-                        if (((Wall)cellWallData & DIR_TO_WALL[dir]) == 0) // If wall in this direction is NOT present
+                        if (((Wall)cellWallData & DIR_TO_WALL[dir]) == 0)
                         {
                             openDirections++;
                         }
                     }
-
-                    if (openDirections == 1) // This is a dead-end
+                    if (openDirections == 1)
                     {
-                        // Don't prune if it's the start cell of the DFS,
-                        // though that's unlikely to be a dead-end after full generation unless 1x1 maze.
                         deadEnds.Add(new Vector2Int(c, r));
                     }
                 }
             }
 
-            if (deadEnds.Count == 0) break; // No dead ends found
-
+            if (deadEnds.Count == 0) break;
             changedInPass = false;
-            // Shuffle dead ends to prune randomly if many exist
-            for (int i = 0; i < deadEnds.Count; i++)
+
+            for (int i = 0; i < deadEnds.Count; i++) // Shuffle
             {
                 var temp = deadEnds[i];
                 int randomIndex = rng.Next(i, deadEnds.Count);
@@ -242,7 +297,6 @@ public static class MazeGenerator
             {
                 if (rng.NextDouble() < probability)
                 {
-                    // Find the single opening
                     int openingDirIdx = -1;
                     for (int dirIdx = 0; dirIdx < 4; dirIdx++)
                     {
@@ -252,20 +306,16 @@ public static class MazeGenerator
                             break;
                         }
                     }
-                    if (openingDirIdx == -1) continue; // Should not happen for a dead-end
+                    if (openingDirIdx == -1) continue;
 
-                    // Try to open one of the other 3 walls
                     List<int> possibleWallsToOpen = new List<int>(3);
                     for (int dirIdx = 0; dirIdx < 4; dirIdx++)
                     {
-                        if (dirIdx == openingDirIdx) continue; // Don't close the only opening
-
+                        if (dirIdx == openingDirIdx) continue;
                         Vector2Int neighbor = deadEndCell + DIRS[dirIdx];
-                        // Check bounds for neighbor
                         if (neighbor.x >= 0 && neighbor.x < cellWidth &&
                             neighbor.y >= 0 && neighbor.y < cellHeight)
                         {
-                            // Check if this wall actually exists
                             if ((grid[deadEndCell.x, deadEndCell.y] & (int)DIR_TO_WALL[dirIdx]) != 0)
                             {
                                 possibleWallsToOpen.Add(dirIdx);
@@ -282,9 +332,8 @@ public static class MazeGenerator
                     }
                 }
             }
-            if (!changedInPass) break; // If no changes in this pass, further passes won't help
+            if (!changedInPass) break;
         }
     }
-
     #endregion
 }
