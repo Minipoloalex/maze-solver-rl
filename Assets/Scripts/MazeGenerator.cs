@@ -3,15 +3,15 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// Generates a 2‑D rectangular maze using depth‑first search (recursive back‑tracker) and
-/// optionally increases the branching factor / loopiness according to a 0–1 <c>difficulty</c> value.
+/// Generates a 2-D rectangular maze using depth-first search (recursive back-tracker) and
+/// optionally increases the branching factor / loopiness according to a 0-1 <c>difficulty</c> value.
 ///
 /// A value of 0 produces an almost straight corridor; 1 produces a very loopy labyrinth.
 /// The generator is deterministic for the same <c>seed</c> so you can replay episodes.
 ///
-/// Cell indices: (0,0) is bottom‑left, +X (columns) to the right, +Y (rows) upwards.
+/// Cell indices: (0,0) is bottom-left, +X (columns) to the right, +Y (rows) upwards.
 /// (Internally, we use x for columns, y for rows in the 2D array for convention with grid[width, height])
-/// The resulting int[,] grid stores bit‑flags per cell:
+/// The resulting int[,] grid stores bit-flags per cell:
 /// 1 = wall on +X (East)
 /// 2 = wall on +Y (North)  <- Changed from Z for consistency if using 2D array indices
 /// 4 = wall on -X (West)
