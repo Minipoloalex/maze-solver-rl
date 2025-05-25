@@ -31,17 +31,17 @@ public class BalancePlatformAgentToTarget : PlatformAgent
     }
     public override void OnEpisodeBegin()
     {
-        gameObject.transform.rotation = new Quaternion(0f, 0f, 0f, 0f);
-        gameObject.transform.Rotate(new Vector3(1, 0, 0), Random.Range(-10f, 10f));
-        gameObject.transform.Rotate(new Vector3(0, 0, 1), Random.Range(-10f, 10f));
-        m_BallRb.linearVelocity = new Vector3(0f, 0f, 0f);
-        ball.transform.position = new Vector3(Random.Range(-1.5f, 1.5f), 4f, Random.Range(-1.5f, 1.5f))
-            + gameObject.transform.position;
+        // gameObject.transform.rotation = new Quaternion(0f, 0f, 0f, 0f);
+        // gameObject.transform.Rotate(new Vector3(1, 0, 0), Random.Range(-10f, 10f));
+        // gameObject.transform.Rotate(new Vector3(0, 0, 1), Random.Range(-10f, 10f));
+        // m_BallRb.linearVelocity = new Vector3(0f, 0f, 0f);
+        // ball.transform.position = new Vector3(Random.Range(-1.5f, 1.5f), 4f, Random.Range(-1.5f, 1.5f))
+        //     + gameObject.transform.position;
 
-        if (randomPositionOnBegin)
-        {
-            targetPosition = new Vector3(Random.Range(-4f, 4f), 0, Random.Range(-4f, 4f));
-        }
+        // if (randomPositionOnBegin)
+        // {
+        //     targetPosition = new Vector3(Random.Range(-4f, 4f), 0, Random.Range(-4f, 4f));
+        // }
     }
     public override void OnActionReceived(ActionBuffers actionBuffers)
     {
