@@ -7,7 +7,7 @@ using Random = UnityEngine.Random;
 /// <summary>
 /// Generic platform agent parent class (to be inherited by others)
 /// </summary>
-public class PlatformAgent : Agent
+public abstract class PlatformAgent : Agent
 {
     public GameObject ball;
     protected Rigidbody m_BallRb;
@@ -26,5 +26,12 @@ public class PlatformAgent : Agent
     {
         ball = b;
         m_BallRb = ball.GetComponent<Rigidbody>();
+    }
+    public override void Heuristic(in ActionBuffers actionsOut)
+    {
+        // Allows testing the balance platform with the arrow keys
+        var continuousActionsOut = actionsOut.ContinuousActions;
+        continuousActionsOut[0] = -Input.GetAxis("Horizontal");
+        continuousActionsOut[1] = Input.GetAxis("Vertical");
     }
 }

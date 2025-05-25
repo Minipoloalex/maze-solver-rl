@@ -95,13 +95,6 @@ public class BalancePlatformAgentToTarget : PlatformAgent
         sensor.AddObservation(targetPosition.x);
         sensor.AddObservation(targetPosition.z);
     }
-    public override void Heuristic(in ActionBuffers actionsOut)
-    {
-        // Allows testing the balance platform with the arrow keys
-        var continuousActionsOut = actionsOut.ContinuousActions;
-        continuousActionsOut[0] = -Input.GetAxis("Horizontal");
-        continuousActionsOut[1] = Input.GetAxis("Vertical");
-    }
 
     private float RewardBasedOnDistance(float x, float z)
     {

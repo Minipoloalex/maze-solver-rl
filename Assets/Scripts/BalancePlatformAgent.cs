@@ -56,10 +56,4 @@ public class BalancePlatformAgent : PlatformAgent
         sensor.AddObservation(ball.transform.position - gameObject.transform.position);
         sensor.AddObservation(m_BallRb.linearVelocity);
     }
-    public override void Heuristic(in ActionBuffers actionsOut)
-    {
-        var continuousActionsOut = actionsOut.ContinuousActions;
-        continuousActionsOut[0] = -Input.GetAxis("Horizontal");
-        continuousActionsOut[1] = Input.GetAxis("Vertical");
-    }
 }
