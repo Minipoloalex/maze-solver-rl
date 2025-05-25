@@ -4,7 +4,7 @@ using UnityEngine;
 /// <summary>
 /// Stores the maze grid. Basically, which cells currently contain a wall.
 /// </summary>
-[RequireComponent(typeof(MazeFromAscii))]
+[RequireComponent(typeof(AsciiMazeLoader))]
 public class MazeRuntimeGrid : MonoBehaviour
 {
     [System.Serializable]
@@ -13,7 +13,7 @@ public class MazeRuntimeGrid : MonoBehaviour
         [SerializeField] private int[] cells;
         public MazeRow(int colCount)
         {
-            cells = new int[colCount];
+            cells = new int[colCount]; // Default int value is 0 (empty)
         }
         public int this[int index]
         {
@@ -23,27 +23,53 @@ public class MazeRuntimeGrid : MonoBehaviour
         public int Length => cells.Length;
     }
 
-    [HideInInspector] public MazeRow[] maze;    // we might want to mark exits in the future
+    [HideInInspector] public MazeRow[] maze;    // 0 = empty, 1 = wall
 
-    public void Init(int rowCount, int colCount)   // my init function
+    public void Init(int rowCount, int colCount)
     {
         maze = new MazeRow[rowCount];
         for (int r = 0; r < rowCount; r++)
         {
-            maze[r] = new MazeRow(colCount);
+            maze[r] = new MazeRow(colCount);    // empty by default
         }
     }
 
     public void AddWall(Vector2Int posId)
     {
-        maze[posId.x][posId.y] = 1;
-        // optional: raise event → update pathfinding, save-game, etc.
+        if (IsWithinBounds(posId))
+        {
+            maze[posId.x][posId.y] = 1;
+        }
+        else
+        {
+            Debug.LogWarning($"AddWall: Position {posId} is out of bounds.");
+        }
     }
 
     public void RemoveWall(Vector2Int posId)
     {
-        maze[posId.x][posId.y] = 0;
+        if (IsWithinBounds(posId))
+        {
+            maze[posId.x][posId.y] = 0;
+        }
+        else
+        {
+            Debug.LogWarning($"RemoveWall: Position {posId} is out of bounds.");
+        }
     }
 
-    public bool HasWall(Vector2Int posId) => maze[posId.x][posId.y] == 1;
+    public bool HasWall(Vector2Int posId)
+    {
+        if (IsWithinBounds(posId))
+        {
+            return maze[posId.x][posId.y] == 1;
+        }
+        Debug.LogWarning($"HasWall: Position {posId} is out of bounds. Returning true (treat as wall) by default.");
+        return true; // Or false, depending on desired behavior for out-of-bounds checks
+    }
+
+    private bool IsWithinBounds(Vector2Int posId)
+    {
+        return maze != null && posId.x >= 0 && posId.x < maze.Length && posId.y >= 0 && posId.y < maze[posId.x].Length;
+    }
 }

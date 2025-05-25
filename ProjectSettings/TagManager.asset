@@ -8,11 +8,11 @@ TagManager:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - OnClicks
+  - 
   - Water
   - UI
-  - 
-  - 
+  - OnClicks
+  - Walls
   - 
   - 
   - 

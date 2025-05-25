@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 7775009082376090700}
   - component: {fileID: 5962710157724485444}
   - component: {fileID: 5438786632212432364}
-  m_Layer: 3
+  m_Layer: 6
   m_Name: FloorTrigger
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -76,5 +76,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ghostPrefab: {fileID: 8668202838464394826, guid: ef44d5ff5f91bd2d7aa3cc653b8019b4, type: 3}
-  wallPrefab: {fileID: 8668202838464394826, guid: 8f7e9803f2fd141d598156b0f4b672eb, type: 3}
-  grid: {fileID: 0}
+  spawner: {fileID: 0}
+  posId: {x: 0, y: 0}

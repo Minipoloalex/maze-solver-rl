@@ -1,7 +1,6 @@
 using UnityEngine;
 using UnityEngine.EventSystems;   // for pointer interfaces
 
-
 /// <summary>
 /// Controls clicks on wall cells (to destroy the walls)
 /// </summary>
@@ -14,6 +13,7 @@ public class WallCell : MonoBehaviour,
     [Header("Visual feedback")]
     public Material normalMat;
     public Material hoverMat;
+
     [HideInInspector] public MazeSpawner spawner;
     [HideInInspector] public Vector2Int posId;
 
@@ -22,22 +22,71 @@ public class WallCell : MonoBehaviour,
     void Awake()
     {
         _mr = GetComponent<MeshRenderer>();
-        _mr.material = normalMat;
+        if (_mr != null && normalMat != null)
+        {
+            _mr.material = normalMat;
+        }
+        else
+        {
+            if (_mr == null)
+            {
+                Debug.LogError("WallCell: MeshRenderer component is missing.", this);
+            }
+            if (normalMat == null)
+            {
+                Debug.LogWarning("WallCell: NormalMat not assigned.", this);
+            }
+        }
     }
 
     public void OnPointerEnter(PointerEventData _)
     {
-        _mr.material = hoverMat;
+        if (_mr != null && hoverMat != null)
+        {
+            _mr.material = hoverMat;
+        }
+        else
+        {
+            if (_mr == null)
+            {
+                Debug.LogWarning("WallCell: MeshRenderer component is missing.", this);
+            }
+            if (hoverMat == null)
+            {
+                Debug.LogWarning("WallCell: HoverMat not assigned.", this);
+            }
+        }
     }
 
     public void OnPointerExit(PointerEventData _)
     {
-        _mr.material = normalMat;
+        if (_mr != null && normalMat != null)
+        {
+            _mr.material = normalMat;
+        }
+        else
+        {
+            if (_mr == null)
+            {
+                Debug.LogWarning("WallCell: MeshRenderer component is missing.", this);
+            }
+            if (normalMat == null)
+            {
+                Debug.LogWarning("WallCell: NormalMat not assigned.", this);
+            }
+        }
     }
 
     public void OnPointerClick(PointerEventData _)
     {
-        spawner.SpawnFloorTrigger(gameObject.transform.position, posId);
-        Destroy(gameObject);      // visual disappears
+        if (spawner != null)
+        {
+            spawner.SpawnFloorTrigger(gameObject.transform.position, posId, spawner.mazeGrid);
+            Destroy(gameObject); // Wall visual disappears, runtime grid updated by SpawnFloorTrigger
+        }
+        else
+        {
+            Debug.LogError("WallCell: Spawner reference not set!", this);
+        }
     }
 }

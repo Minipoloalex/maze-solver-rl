@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 4716132838252477881}
   - component: {fileID: 3596536428325753810}
   - component: {fileID: 401566722246349406}
-  m_Layer: 3
+  m_Layer: 7
   m_Name: Wall
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -123,4 +123,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   normalMat: {fileID: 2100000, guid: 7933171b918878729bb600253634e2ff, type: 2}
   hoverMat: {fileID: 2100000, guid: af92a85e4a81e481fa58d55923919258, type: 2}
-  grid: {fileID: 0}
+  spawner: {fileID: 0}
+  posId: {x: 0, y: 0}
