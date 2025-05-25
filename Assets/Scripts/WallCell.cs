@@ -14,7 +14,7 @@ public class WallCell : MonoBehaviour,
     public Material normalMat;
     public Material hoverMat;
 
-    [HideInInspector] public MazeSpawner spawner;
+    [HideInInspector] public MazeController controller;
     [HideInInspector] public Vector2Int posId;
 
     MeshRenderer _mr;
@@ -79,10 +79,9 @@ public class WallCell : MonoBehaviour,
 
     public void OnPointerClick(PointerEventData _)
     {
-        if (spawner != null)
+        if (controller != null)
         {
-            spawner.SpawnFloorTrigger(gameObject.transform.position, posId, spawner.mazeGrid);
-            Destroy(gameObject); // Wall visual disappears, runtime grid updated by SpawnFloorTrigger
+            controller.SwitchWallToFloor(posId, gameObject);
         }
         else
         {

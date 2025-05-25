@@ -13,7 +13,7 @@ public class FloorCell : MonoBehaviour,
     [Header("Prefabs")]
     public GameObject ghostPrefab;     // transparent cube shown on hover
 
-    [HideInInspector] public MazeSpawner spawner;
+    [HideInInspector] public MazeController controller;
     [HideInInspector] public Vector2Int posId;
 
     GameObject _ghost;
@@ -22,7 +22,7 @@ public class FloorCell : MonoBehaviour,
     {
         if (ghostPrefab != null)
         {
-            _ghost = Instantiate(ghostPrefab, transform.position, Quaternion.identity, transform);
+            _ghost = Instantiate(ghostPrefab, transform.position, transform.rotation, transform);
             _ghost.transform.localScale = Vector3.one; // Ensure ghost is not double-scaled if parent is scaled
             _ghost.SetActive(false);
         }
@@ -58,11 +58,9 @@ public class FloorCell : MonoBehaviour,
 
     public void OnPointerClick(PointerEventData _)
     {
-        if (spawner != null)
+        if (controller != null)
         {
-            // Pass the spawner's MazeRuntimeGrid instance
-            spawner.SpawnWall(transform.position, posId, spawner.mazeGrid);
-
+            controller.SwitchFloorToWall(posId, gameObject);
             if (_ghost != null)
             {
                 Destroy(_ghost);
@@ -71,7 +69,6 @@ public class FloorCell : MonoBehaviour,
             {
                 Debug.LogWarning("FloorCell: Ghost not deleted since it was never created.", this);
             }
-            Destroy(gameObject); // floor trigger gone: replaced by wall, runtime grid updated by SpawnWall
         }
         else
         {
