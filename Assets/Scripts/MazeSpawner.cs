@@ -31,8 +31,8 @@ public class MazeSpawner : MonoBehaviour
         float width = wallScale.x * gridSize.x;
         float depth = wallScale.z * gridSize.y;
 
-        Vector3 floorRelativePos = new Vector3(0, -0.05f, 0); // slightly below to avoid issues
-        Vector3 floorScale = new Vector3(width, 0.1f, depth);
+        Vector3 floorRelativePos = new Vector3(0, -0.25f, 0); // slightly below to avoid issues
+        Vector3 floorScale = new Vector3(width, 0.5f, depth);
 
         GameObject floor = Instantiate(floorPrefab, parent.position + floorRelativePos, parent.rotation, parent);
         floor.transform.localScale = floorScale;
