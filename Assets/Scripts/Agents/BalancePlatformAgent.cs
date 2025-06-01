@@ -4,17 +4,12 @@ using Unity.MLAgents.Sensors;
 using Unity.MLAgents.Actuators;
 using Random = UnityEngine.Random;
 
-public class BalancePlatformAgentScript : Agent
-{
-    public GameObject ball;
-    Rigidbody m_BallRb;
 
-    public override void Initialize()
-    {
-        m_BallRb = ball.GetComponent<Rigidbody>();
-        // m_ResetParams = Academy.Instance.EnvironmentParameters;
-        // SetResetParameters();
-    }
+/// <summary>
+/// Simple agent to balance the ball: simple rewards (on top of balancing platform or not)
+/// </summary>
+public class BalancePlatformAgent : PlatformAgent
+{
     public override void OnEpisodeBegin()
     {
         gameObject.transform.rotation = new Quaternion(0f, 0f, 0f, 0f);
@@ -60,11 +55,5 @@ public class BalancePlatformAgentScript : Agent
         // Values from the ball: relative position and linear velocity
         sensor.AddObservation(ball.transform.position - gameObject.transform.position);
         sensor.AddObservation(m_BallRb.linearVelocity);
-    }
-    public override void Heuristic(in ActionBuffers actionsOut)
-    {
-        var continuousActionsOut = actionsOut.ContinuousActions;
-        continuousActionsOut[0] = -Input.GetAxis("Horizontal");
-        continuousActionsOut[1] = Input.GetAxis("Vertical");
     }
 }
