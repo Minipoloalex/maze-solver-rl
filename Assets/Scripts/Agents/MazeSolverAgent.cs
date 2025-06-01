@@ -24,23 +24,26 @@ public class MazeSolverAgent : PlatformAgent
     }
     private void SetEnvParameters(EnvironmentParameters envParams)
     {
+        Debug.Log(envParams);
         var difficulty = envParams.GetWithDefault("difficulty", 0.5f);
         var seed = (int)envParams.GetWithDefault("maze_seed", 0f);
         controller.mazeGeneratorSeed = seed;
         controller.mazeGeneratorDifficulty = difficulty;
 
-        Debug.Log($"Episode Start: Difficulty={difficulty}, MazeSeed={seed}");
+        Debug.Log($"Episode Start for training: Difficulty={difficulty}, MazeSeed={seed}");
     }
     public override void OnEpisodeBegin()
     {
-        // we will be custom-setting the seed with the environment parameters
-        // it's still random, but requires the parameter be false
-        controller.useRandomSeedForGenerator = false;
+        if (Academy.Instance.IsCommunicatorOn)  // if we're training
+        {
+            // we will be custom-setting the seed with the environment parameters
+            // it's still random, but requires the parameter be false
+            controller.useRandomSeedForGenerator = false;
 
-        // Get the EnvironmentParameters object from the Academy
-        var envParameters = Academy.Instance.EnvironmentParameters;
-        SetEnvParameters(envParameters);
-
+            // Get the EnvironmentParameters object from the Academy
+            var envParameters = Academy.Instance.EnvironmentParameters;
+            SetEnvParameters(envParameters);
+        }
         controller.ResetMaze();
     }
     public override void CollectObservations(VectorSensor sensor)
@@ -60,8 +63,6 @@ public class MazeSolverAgent : PlatformAgent
         // Add observations for the calculated projected point's coordinates
         Vector3 posDiff = projectedPoint - worldExitPosition;
         sensor.AddObservation(new Vector2(posDiff.x, posDiff.z)); // 2d
-
-        Debug.Log(projectedPoint);
     }
     public override void OnActionReceived(ActionBuffers actionBuffers)
     {
@@ -70,7 +71,7 @@ public class MazeSolverAgent : PlatformAgent
         float dx = ball.transform.position.x - gameObject.transform.position.x;
         float dz = ball.transform.position.z - gameObject.transform.position.z;
         float dy = ball.transform.position.y - gameObject.transform.position.y;
-        if (dy < -10f || dy > 10f || Mathf.Abs(dx) > 50f || Mathf.Abs(dz) > 50f)
+        if (dy < -20f || dy > 20f || Mathf.Abs(dx) > 50f || Mathf.Abs(dz) > 50f)
         {
             SetReward(-100f);   // total steps: 1000
             EndEpisode();
