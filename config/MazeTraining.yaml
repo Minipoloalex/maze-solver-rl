@@ -31,7 +31,3 @@ environment_parameters:
   difficulty:               # later used for curriculum
     sampler_type: uniform
     sampler_parameters: {min_value: 0.1, max_value: 1.0}
-
-  ball_mass:
-    sampler_type: gaussian
-    sampler_parameters: {mean: 1.0, st_dev: 0.2}

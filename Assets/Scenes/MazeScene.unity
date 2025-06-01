@@ -285,8 +285,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 427338707}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.30070576, y: 0, z: 0, w: 0.953717}
-  m_LocalPosition: {x: 0, y: 7.72, z: -10}
+  m_LocalRotation: {x: 0.48539886, y: -0.037927523, z: 0.021075947, w: 0.8732155}
+  m_LocalPosition: {x: 1.1330414, y: 21.021503, z: -13.0165825}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -544,11 +544,11 @@ MonoBehaviour:
   allowRuntimeModifications: 1
   useRandomSeedForGenerator: 1
   mazeGeneratorSeed: 0
-  mazeGeneratorDifficulty: 0.2
-  mazeGeneratorMinWidth: 10
+  mazeGeneratorDifficulty: 0
+  mazeGeneratorMinWidth: 5
   mazeGeneratorMaxWidth: 20
   mazeGeneratorMinHeight: 5
-  mazeGeneratorMaxHeight: 5
+  mazeGeneratorMaxHeight: 20
   exitPosId: {x: 0, y: 0}
   spawner: {fileID: 0}
   wallsOn: {fileID: 0}

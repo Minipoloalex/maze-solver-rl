@@ -22,10 +22,26 @@ public class MazeSolverAgent : PlatformAgent
         base.Initialize();
         Vector3 scale = gameObject.transform.localScale;
     }
+    private void SetEnvParameters(EnvironmentParameters envParams)
+    {
+        var difficulty = envParams.GetWithDefault("difficulty", 0.5f);
+        var seed = (int)envParams.GetWithDefault("maze_seed", 0f);
+        controller.mazeGeneratorSeed = seed;
+        controller.mazeGeneratorDifficulty = difficulty;
+
+        Debug.Log($"Episode Start: Difficulty={difficulty}, MazeSeed={seed}");
+    }
     public override void OnEpisodeBegin()
     {
+        // we will be custom-setting the seed with the environment parameters
+        // it's still random, but requires the parameter be false
+        controller.useRandomSeedForGenerator = false;
+
+        // Get the EnvironmentParameters object from the Academy
+        var envParameters = Academy.Instance.EnvironmentParameters;
+        SetEnvParameters(envParameters);
+
         controller.ResetMaze();
-        
     }
     public override void CollectObservations(VectorSensor sensor)
     {

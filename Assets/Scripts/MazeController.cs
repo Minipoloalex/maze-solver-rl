@@ -10,6 +10,7 @@ public class MazeController : MonoBehaviour
     [Header("Maze Random Generation Parameters")]
     public bool useRandomSeedForGenerator = true;
     public int mazeGeneratorSeed = 0;
+    [Range(0f, 1f)]
     public float mazeGeneratorDifficulty = 0.2f;
     [Header("Maze width")]
     public int mazeGeneratorMinWidth = 5;
@@ -70,7 +71,10 @@ public class MazeController : MonoBehaviour
     {
         // For each of the maze's components,
         // create a view for them
-        agent = spawner.SpawnPlatformAgent(transform, this, exitPosId);
+        if (this.agent == null)
+        {
+            agent = spawner.SpawnPlatformAgent(transform, this, exitPosId);
+        }
         GameObject floor = spawner.SpawnFloor(agent.transform);
         this.wallsOn = spawner.SpawnWallsContainer(agent.transform);
         this.wallsOff = spawner.SpawnFloorTriggersContainer(agent.transform);
@@ -120,14 +124,17 @@ public class MazeController : MonoBehaviour
     }
     private void CleanUpMaze()
     {
-        // Destroy the agent, which should contain floor, wallsOn, wallsOff as children
+        // Destroy every child of agent: floor, wallsOn, wallsOff (keep agent)
         if (agent != null)
         {
-            Destroy(agent);
-            agent = null;
+            foreach (Transform child in agent.transform)
+            {
+                Destroy(child.gameObject);
+            }
+            agent.transform.localRotation = Quaternion.identity;
         }
-
-        // Destroy the ball (since it's separate)
+    
+        // Destroy the ball (separate from the agent)
         if (ball != null)
         {
             Destroy(ball);
@@ -146,6 +153,7 @@ public class MazeController : MonoBehaviour
     public void ResetMaze()
     {
         CleanUpMaze();
+        agent.transform.localRotation = Quaternion.identity;
         GenerateAndSpawnNewMaze();
     }
 }

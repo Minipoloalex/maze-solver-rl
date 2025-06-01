@@ -3,8 +3,6 @@ using UnityEngine;
 /// <summary>
 /// Contains methods to spawn objects in the scene
 /// </summary>
-
-
 public class MazeSpawner : MonoBehaviour
 {
     [HideInInspector] public Vector2Int gridSize;
