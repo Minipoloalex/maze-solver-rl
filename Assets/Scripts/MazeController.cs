@@ -37,10 +37,10 @@ public class MazeController : MonoBehaviour
         if (generateRandomMaze)
         {
             int currentSeed = useRandomSeedForGenerator ? UnityEngine.Random.Range(int.MinValue, int.MaxValue) : mazeGeneratorSeed;
+            UnityEngine.Random.InitState(currentSeed);
 
-            // Ensure positive dimensions for the generator
-            int genWidth = Mathf.Max(mazeGeneratorMinWidth, mazeGeneratorMaxWidth);
-            int genHeight = Mathf.Max(mazeGeneratorMinHeight, mazeGeneratorMaxHeight);
+            int genWidth = UnityEngine.Random.Range(mazeGeneratorMinWidth, mazeGeneratorMaxWidth + 1);
+            int genHeight = UnityEngine.Random.Range(mazeGeneratorMinHeight, mazeGeneratorMaxHeight + 1);
 
             this.grid = MazeGenerator.GenerateMazeForRuntimeGrid(
                 genWidth,
