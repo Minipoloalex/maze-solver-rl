@@ -10,10 +10,10 @@ GameObject:
   m_Component:
   - component: {fileID: 6287002169616056346}
   - component: {fileID: 8644549915309980052}
-  - component: {fileID: 893199119149465914}
+  - component: {fileID: 2728742953816641931}
   - component: {fileID: 8649420691284167125}
   m_Layer: 0
-  m_Name: PlatformAgent
+  m_Name: PlatformAgentSimple
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -47,7 +47,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_BrainParameters:
-    VectorObservationSize: 12
+    VectorObservationSize: 10
     NumStackedVectorObservations: 1
     m_ActionSpec:
       m_NumContinuousActions: 2
@@ -59,13 +59,13 @@ MonoBehaviour:
   m_Model: {fileID: 0}
   m_InferenceDevice: 2
   m_BehaviorType: 0
-  m_BehaviorName: MazeSolver
+  m_BehaviorName: PlatformCenter
   TeamId: 0
   m_UseChildSensors: 1
   m_UseChildActuators: 1
   m_DeterministicInference: 0
   m_ObservableAttributeHandling: 0
---- !u!114 &893199119149465914
+--- !u!114 &2728742953816641931
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -74,18 +74,16 @@ MonoBehaviour:
   m_GameObject: {fileID: 1183898981796164770}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 54be7174027687f098a5081f6663274a, type: 3}
+  m_Script: {fileID: 11500000, guid: 1eee0c97c22f5fc99ba22ae2ff403638, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   agentParameters:
     maxStep: 0
   hasUpgradedFromAgentParameters: 1
   MaxStep: 5000
-  controller: {fileID: 0}
-  worldExitPosition: {x: 0, y: 0, z: 0}
   ball: {fileID: 0}
-  targetPosition: {x: 0, y: 0, z: 0}
-  goalReachedDistanceThreshold: 0.5
+  targetPosition: {x: 2, y: 0, z: 2}
+  randomPositionOnBegin: 0
 --- !u!114 &8649420691284167125
 MonoBehaviour:
   m_ObjectHideFlags: 0

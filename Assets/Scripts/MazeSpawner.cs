@@ -21,9 +21,13 @@ public class MazeSpawner : MonoBehaviour
     public Vector3 wallScale = Vector3.one;
     public Vector3 ballScale = Vector3.one;
 
-    public GameObject SpawnPlatformAgent(Transform parent)
+    public GameObject SpawnPlatformAgent(Transform parent, MazeController controller, Vector2Int exitPosId)
     {
-        return Instantiate(platformAgentPrefab, parent.position, parent.rotation, parent);
+        var agent = Instantiate(platformAgentPrefab, parent.position, parent.rotation, parent);
+        var agentScript = agent.GetComponent<PlatformAgent>();
+        agentScript.controller = controller;
+        agentScript.worldExitPosition = GetWorldRelativePosition(exitPosId);
+        return agent;
     }
 
     public GameObject SpawnFloor(Transform parent)

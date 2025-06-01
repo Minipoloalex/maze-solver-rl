@@ -26,6 +26,8 @@ public class MazeController : MonoBehaviour
     [HideInInspector] public MazeSpawner spawner;
     [HideInInspector] public GameObject wallsOn;
     [HideInInspector] public GameObject wallsOff;
+    private GameObject ball;
+    private GameObject agent;
 
     public Vector2Int Generate()
     {
@@ -68,7 +70,7 @@ public class MazeController : MonoBehaviour
     {
         // For each of the maze's components,
         // create a view for them
-        GameObject agent = spawner.SpawnPlatformAgent(transform);
+        agent = spawner.SpawnPlatformAgent(transform, this, exitPosId);
         GameObject floor = spawner.SpawnFloor(agent.transform);
         this.wallsOn = spawner.SpawnWallsContainer(agent.transform);
         this.wallsOff = spawner.SpawnFloorTriggersContainer(agent.transform);
@@ -89,7 +91,7 @@ public class MazeController : MonoBehaviour
                 }
             }
         }
-        GameObject ball = spawner.SpawnBall(this.transform, ballPosId, this);
+        ball = spawner.SpawnBall(this.transform, ballPosId, this);
 
         // Give the agent all the information
         // that it might need in the future
@@ -110,11 +112,40 @@ public class MazeController : MonoBehaviour
         spawner.SpawnWall(wallsOn.transform, posId, this);
         Destroy(floorObject); // floor trigger gone: replaced by wall, runtime grid updated
     }
-
-    public void Start()
+    private void GenerateAndSpawnNewMaze()
     {
         Vector2Int ballPosId = Generate();
         SetupSpawner();
         Spawn(ballPosId);
+    }
+    private void CleanUpMaze()
+    {
+        // Destroy the agent, which should contain floor, wallsOn, wallsOff as children
+        if (agent != null)
+        {
+            Destroy(agent);
+            agent = null;
+        }
+
+        // Destroy the ball (since it's separate)
+        if (ball != null)
+        {
+            Destroy(ball);
+            ball = null;
+        }
+        // nullify explicitly (though makes no difference)
+        wallsOn = null;
+        wallsOff = null;
+        grid = null;
+    }
+
+    public void Start()
+    {
+        GenerateAndSpawnNewMaze();
+    }
+    public void ResetMaze()
+    {
+        CleanUpMaze();
+        GenerateAndSpawnNewMaze();
     }
 }
