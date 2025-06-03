@@ -27,9 +27,11 @@ public class MazeController : MonoBehaviour
     [HideInInspector] public MazeSpawner spawner;
     [HideInInspector] public GameObject wallsOn;
     [HideInInspector] public GameObject wallsOff;
-    private GameObject ball;
     private GameObject agent;
-
+    private GameObject floor;
+    private GameObject ball;
+    private GameObject ballGridAnchor;
+    
     public Vector2Int Generate()
     {
         Vector2Int ballPosId;
@@ -71,11 +73,12 @@ public class MazeController : MonoBehaviour
     {
         // For each of the maze's components,
         // create a view for them
-        if (this.agent == null)
-        {
-            agent = spawner.SpawnPlatformAgent(transform, this, exitPosId);
-        }
-        GameObject floor = spawner.SpawnFloor(agent.transform);
+
+        this.agent ??= spawner.SpawnPlatformAgent(transform, this, exitPosId);
+        this.ball ??= spawner.SpawnBall(this.transform, ballPosId, this);
+        this.ballGridAnchor ??= spawner.SpawnBallGridAnchor(agent.transform, ball.transform);
+
+        this.floor = spawner.SpawnFloor(agent.transform);
         this.wallsOn = spawner.SpawnWallsContainer(agent.transform);
         this.wallsOff = spawner.SpawnFloorTriggersContainer(agent.transform);
         for (int row = 0; row < grid.Length; row++)
@@ -95,12 +98,11 @@ public class MazeController : MonoBehaviour
                 }
             }
         }
-        ball = spawner.SpawnBall(this.transform, ballPosId, this);
 
         // Give the agent all the information
         // that it might need in the future
         PlatformAgent agentScript = agent.GetComponent<PlatformAgent>();
-        agentScript.Init(ball);
+        agentScript.Init(this.ball, this.ballGridAnchor);
     }
 
     public void SwitchWallToFloor(Vector2Int posId, GameObject wallObject)
@@ -116,34 +118,34 @@ public class MazeController : MonoBehaviour
         spawner.SpawnWall(wallsOn.transform, posId, this);
         Destroy(floorObject); // floor trigger gone: replaced by wall, runtime grid updated
     }
+    private void MoveBall(Vector2Int newBallPosId)
+    {
+        Vector3 pos = spawner.GetWorldRelativePosition(newBallPosId);
+        ball.transform.localPosition = pos;
+    }
     private void GenerateAndSpawnNewMaze()
     {
         Vector2Int ballPosId = Generate();
         SetupSpawner();
         Spawn(ballPosId);
+        MoveBall(ballPosId);
     }
     private void CleanUpMaze()
     {
         // Destroy every child of agent: floor, wallsOn, wallsOff (keep agent)
         if (agent != null)
         {
-            foreach (Transform child in agent.transform)
-            {
-                Destroy(child.gameObject);
-            }
-            agent.transform.localRotation = Quaternion.identity;
+            Destroy(this.wallsOn);
+            Destroy(this.wallsOff);
+            Destroy(this.floor);
+            this.agent.transform.localRotation = Quaternion.identity;
         }
-    
-        // Destroy the ball (separate from the agent)
-        if (ball != null)
-        {
-            Destroy(ball);
-            ball = null;
-        }
-        // nullify explicitly (though makes no difference)
-        wallsOn = null;
-        wallsOff = null;
-        grid = null;
+
+        // nullify explicitly (though I think it makes no difference)
+        this.wallsOn = null;
+        this.wallsOff = null;
+        this.floor = null;
+        this.grid = null;
     }
 
     public void Start()

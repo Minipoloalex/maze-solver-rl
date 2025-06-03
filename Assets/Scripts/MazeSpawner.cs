@@ -12,6 +12,8 @@ public class MazeSpawner : MonoBehaviour
     public GameObject wallPrefab;   // 1x1x1 
     public GameObject floorPrefab;  // 1x1x1 cube (for trigger purpose only)
     public GameObject ballPrefab;   // sphere: radius = 1
+    [Tooltip("Helper for agent to track ball")] // allows agent to have a grid sensor component on the ball
+    public GameObject ballGridAnchorPrefab;
     public GameObject floorTriggerPrefab;   // prefab with script for on hover (see ghostPrefab)
     public GameObject ghostPrefab;  // 1x1x1 cube (transparent): shown on hover (when adding a new wall)
 
@@ -96,7 +98,12 @@ public class MazeSpawner : MonoBehaviour
 
         return ball;
     }
-
+    public GameObject SpawnBallGridAnchor(Transform agentParent, Transform ballTransform)
+    {
+        var ballGridAnchor = Instantiate(ballGridAnchorPrefab, ballTransform.position, agentParent.rotation, agentParent);
+        ballGridAnchor.transform.localScale = Vector3.Scale(ballGridAnchor.transform.localScale, ballScale);
+        return ballGridAnchor;
+    }
     public Vector3 GetWorldRelativePosition(Vector2Int posId)
     {
         // x are columns, z are rows

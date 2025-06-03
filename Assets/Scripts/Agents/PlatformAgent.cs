@@ -12,6 +12,7 @@ public abstract class PlatformAgent : Agent
     public MazeController controller;
     public Vector3 worldExitPosition;
     public GameObject ball;
+    public Transform _ballGridAnchorTransform;
     protected Rigidbody m_BallRb;
     public override void Initialize()
     {
@@ -20,14 +21,27 @@ public abstract class PlatformAgent : Agent
             SetBall(ball);
         }
     }
-    public void Init(GameObject b)
+    public void Init(GameObject ball, GameObject ballGridAnchor)
     {
-        SetBall(b);
+        SetBall(ball);
+        _ballGridAnchorTransform = ballGridAnchor.transform;
     }
     private void SetBall(GameObject b)
     {
         ball = b;
         m_BallRb = ball.GetComponent<Rigidbody>();
+    }
+    void FixedUpdate()
+    {
+        if (ball.transform != null && ball.activeInHierarchy && _ballGridAnchorTransform != null)
+        {
+            Vector3 ballLocalPosOnPlatform = transform.InverseTransformPoint(ball.transform.position);
+            _ballGridAnchorTransform.localPosition = ballLocalPosOnPlatform;
+        }
+        else
+        {
+            Debug.LogError("Agent does not have access to the ball or its anchor of the ball");
+        }
     }
     public override void OnActionReceived(ActionBuffers actionBuffers)
     {

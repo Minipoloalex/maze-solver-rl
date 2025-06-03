@@ -524,6 +524,7 @@ MonoBehaviour:
   wallPrefab: {fileID: 8668202838464394826, guid: 8f7e9803f2fd141d598156b0f4b672eb, type: 3}
   floorPrefab: {fileID: 8178175224102189146, guid: 39a39ccd040bf9b2db51561ea466eb30, type: 3}
   ballPrefab: {fileID: 1891612059999212756, guid: 1af14ca285cb9327c85aa27b6fcfc844, type: 3}
+  ballGridAnchorPrefab: {fileID: 8505041366592322566, guid: 73a3f41d07f7a2c18bec37cd6b0ed39c, type: 3}
   floorTriggerPrefab: {fileID: 1053466451374072658, guid: 27ab073972358b0c3bd73cbf487d8426, type: 3}
   ghostPrefab: {fileID: 8668202838464394826, guid: ef44d5ff5f91bd2d7aa3cc653b8019b4, type: 3}
   wallScale: {x: 1, y: 1, z: 1}
