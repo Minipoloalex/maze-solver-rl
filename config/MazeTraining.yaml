@@ -16,6 +16,12 @@ behaviors:
         sequence_length: 64         # gives the agent short-term memory
         memory_size: 256
       normalize: true
+      vis_encode_type: fully_connected
+      # vis_encode_type: simple
+      # vibe-coded in: does it exist?
+      # sensor_settings:
+      #   - name: GridSensor  # name set in Unity editor
+      #     encoding_type: simple  # Options: simple, resnet, match3, nature_cnn (for visual)
     reward_signals:
       extrinsic:
         gamma: 0.99

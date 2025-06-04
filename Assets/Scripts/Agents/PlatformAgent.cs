@@ -21,7 +21,7 @@ public abstract class PlatformAgent : Agent
             SetBall(ball);
         }
     }
-    public void Init(GameObject ball, GameObject ballGridAnchor)
+    public virtual void Init(GameObject ball, GameObject ballGridAnchor)
     {
         SetBall(ball);
         _ballGridAnchorTransform = ballGridAnchor.transform;
@@ -35,8 +35,7 @@ public abstract class PlatformAgent : Agent
     {
         if (ball.transform != null && ball.activeInHierarchy && _ballGridAnchorTransform != null)
         {
-            Vector3 ballLocalPosOnPlatform = transform.InverseTransformPoint(ball.transform.position);
-            _ballGridAnchorTransform.localPosition = ballLocalPosOnPlatform;
+            controller.MoveBallAnchor();
         }
         else
         {

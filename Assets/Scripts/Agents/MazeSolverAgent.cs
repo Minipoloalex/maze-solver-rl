@@ -17,6 +17,14 @@ public class MazeSolverAgent : PlatformAgent
     [Header("Distance threshold for defining if the ball reached the exit")]
     public float goalReachedDistanceThreshold = 0.5f;
 
+    [Header("Reward scale for distance delta, with progress rewards")]
+    public float progressRewardScale = 0.1f; // check code use
+
+    [Header("Reward scale for distance, with simple distance rewards")]
+    public float distanceMagnitudeRewardScale = 0.1f;     // check code use
+
+    private float prevDistanceToExit;
+
     public override void Initialize()
     {
         base.Initialize();
@@ -46,6 +54,21 @@ public class MazeSolverAgent : PlatformAgent
         }
         controller.ResetMaze();
     }
+
+    /// <summary>
+    /// Gets the position difference between the ball and the exit position, as if the plane was not rotated
+    /// </summary>
+    /// <returns>Vector from the world exit position to the projected ball position (plane rotated back to rotation = 0)</returns>
+    private Vector3 GetBallPositionDifferenceToExit()
+    {
+        Vector3 currentBallPosition = ball.transform.localPosition;
+        Quaternion planeRot = gameObject.transform.localRotation;
+        Vector3 projectedPoint = Quaternion.Inverse(planeRot) * currentBallPosition;
+
+        // Add observations for the calculated projected point's coordinates
+        Vector3 posDiff = projectedPoint - worldExitPosition;
+        return posDiff;
+    }
     public override void CollectObservations(VectorSensor sensor)
     {
         // Rotation values from the platform (4d)
@@ -56,58 +79,54 @@ public class MazeSolverAgent : PlatformAgent
         sensor.AddObservation(m_BallRb.linearVelocity); // 3d
 
         // relative position to the target (2d: x, z)
-        Vector3 currentBallPosition = ball.transform.localPosition;
-        Quaternion planeRot = gameObject.transform.localRotation;
-        Vector3 projectedPoint = Quaternion.Inverse(planeRot) * currentBallPosition;
-
         // Add observations for the calculated projected point's coordinates
-        Vector3 posDiff = projectedPoint - worldExitPosition;
-        sensor.AddObservation(new Vector2(posDiff.x, posDiff.z)); // 2d
+        Vector3 posDiff = GetBallPositionDifferenceToExit();
+        sensor.AddObservation(new Vector2(posDiff.x, posDiff.z));
     }
     public override void OnActionReceived(ActionBuffers actionBuffers)
     {
         base.OnActionReceived(actionBuffers);
 
-        float dx = ball.transform.position.x - gameObject.transform.position.x;
-        float dz = ball.transform.position.z - gameObject.transform.position.z;
-        float dy = ball.transform.position.y - gameObject.transform.position.y;
+        // Ball's local position relative to Maze
+        float dx = ball.transform.localPosition.x;
+        float dz = ball.transform.localPosition.z;
+        float dy = ball.transform.localPosition.y;
+
         if (dy < -20f || dy > 20f || Mathf.Abs(dx) > 50f || Mathf.Abs(dz) > 50f)
         {
-            SetReward(-100f);   // total steps: 1000
+            SetReward(-1f);   // total steps: 1000
             EndEpisode();
+            return;
         }
         else
         {
-            float yAbs = Mathf.Abs(dy);
-            float errX = dx - targetPosition.x;
-            float errZ = dz - targetPosition.z;
+            Vector3 posDiff = GetBallPositionDifferenceToExit();
+            float distanceToExit = new Vector2(posDiff.x, posDiff.z).magnitude;
+            if (distanceToExit < goalReachedDistanceThreshold) // If ball is within half a cell width of the exit
+            {
+                Debug.Log("Goal Reached!");
+                SetReward(1.0f); // Positive reward for reaching the goal
+                EndEpisode();
+                return;
+            }
 
-            // find out the X and Z relative to the plane's reference
-            float xDist = HypotenuseLength(errX, yAbs);
-            float zDist = HypotenuseLength(errZ, yAbs);
-
-            errX = errX > 0 ? xDist : -xDist;
-            errZ = errZ > 0 ? zDist : -zDist;
-
-            SetReward(RewardBasedOnDistance(errX, errZ));
+            AddReward(RewardBasedOnProgress(distanceToExit));
+            AddReward(-0.001f);
         }
     }
 
-    private float RewardBasedOnDistance(float x, float z)
+    private float RewardBasedOnDistance(float distanceToExit)
     {
-        // float dx = (x - targetPosition.x);
-        // float dz = (z - targetPosition.z);
-
-        // // the larger the distance, the least reward should be given
-        // float distSquared = dx * dx + dz * dz;
-
-        // // Normalize and clamp reward to range [0, 1]
-        // return -Mathf.Clamp01(distSquared / maxDistSquared);
-        return 0f;
+        // The "reaching goal" reward should be handled by SetReward() in OnActionReceived
+        // before EndEpisode(), as it's a terminal state reward.
+        // This function should primarily provide shaping reward.
+        float reward = (1.0f / (distanceToExit + 1e-6f)) * distanceMagnitudeRewardScale;
+        return reward;
     }
-    // https://docs.unity3d.com/6000.0/Documentation/ScriptReference/Mathf.Sqrt.html
-    private float HypotenuseLength(float a, float b)
+    private float RewardBasedOnProgress(float curDistanceToExit)
     {
-        return Mathf.Sqrt(a * a + b * b);
+        float distanceDelta = prevDistanceToExit - curDistanceToExit;
+        prevDistanceToExit = curDistanceToExit;
+        return distanceDelta * progressRewardScale;
     }
 }

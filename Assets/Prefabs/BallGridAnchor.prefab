@@ -46,7 +46,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_SensorName: GridSensor
   m_CellScale: {x: 1, y: 1, z: 1}
-  m_GridSize: {x: 3, y: 1, z: 3}
+  m_GridSize: {x: 5, y: 1, z: 5}
   m_RotateWithAgent: 1
   m_AgentGameObject: {fileID: 0}
   m_DetectableTags:
@@ -57,7 +57,7 @@ MonoBehaviour:
   m_MaxColliderBufferSize: 500
   m_InitialColliderBufferSize: 4
   m_DebugColors:
-  - {r: 0, g: 0, b: 0, a: 0}
+  - {r: 0.8081844, g: 0.1204935, b: 0.1204935, a: 0}
   m_GizmoYOffset: 0.5
   m_ShowGizmos: 1
   m_CompressionType: 0

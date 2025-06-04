@@ -8,7 +8,9 @@ public class MazeController : MonoBehaviour
     public bool allowRuntimeModifications = true; // TODO: in case clicker stuff is slow, do not spawn it (not implemented yet)
 
     [Header("Maze Random Generation Parameters")]
+    [Tooltip("Whether to generate a random maze or use the given seed")]
     public bool useRandomSeedForGenerator = true;
+    [Tooltip("Seed to use for maze generation in case we should not generate a new random maze")]
     public int mazeGeneratorSeed = 0;
     [Range(0f, 1f)]
     public float mazeGeneratorDifficulty = 0.2f;
@@ -31,6 +33,7 @@ public class MazeController : MonoBehaviour
     private GameObject floor;
     private GameObject ball;
     private GameObject ballGridAnchor;
+    private GameObject exitPad;
     
     public Vector2Int Generate()
     {
@@ -73,10 +76,18 @@ public class MazeController : MonoBehaviour
     {
         // For each of the maze's components,
         // create a view for them
+        if (this.agent == null)
+        {
+            this.agent = spawner.SpawnPlatformAgent(transform, this, exitPosId);
+            this.ball ??= spawner.SpawnBall(this.transform, ballPosId, this);
+            this.ballGridAnchor = agent.transform.Find("BallGridAnchor").gameObject;
+            this.MoveBallAnchor();
 
-        this.agent ??= spawner.SpawnPlatformAgent(transform, this, exitPosId);
-        this.ball ??= spawner.SpawnBall(this.transform, ballPosId, this);
-        this.ballGridAnchor ??= spawner.SpawnBallGridAnchor(agent.transform, ball.transform);
+            // Give the agent all the information
+            // that it might need in the future
+            PlatformAgent agentScript = agent.GetComponent<PlatformAgent>();
+            agentScript.Init(this.ball, this.ballGridAnchor);
+        }
 
         this.floor = spawner.SpawnFloor(agent.transform);
         this.wallsOn = spawner.SpawnWallsContainer(agent.transform);
@@ -98,11 +109,7 @@ public class MazeController : MonoBehaviour
                 }
             }
         }
-
-        // Give the agent all the information
-        // that it might need in the future
-        PlatformAgent agentScript = agent.GetComponent<PlatformAgent>();
-        agentScript.Init(this.ball, this.ballGridAnchor);
+        this.exitPad = spawner.SpawnExitPad(agent.transform, exitPosId);
     }
 
     public void SwitchWallToFloor(Vector2Int posId, GameObject wallObject)
@@ -123,6 +130,11 @@ public class MazeController : MonoBehaviour
         Vector3 pos = spawner.GetWorldRelativePosition(newBallPosId);
         ball.transform.localPosition = pos;
     }
+    public void MoveBallAnchor()
+    {
+        Vector3 ballLocalPosOnPlatform = agent.transform.InverseTransformPoint(ball.transform.position);
+        ballGridAnchor.transform.localPosition = ballLocalPosOnPlatform;
+    }
     private void GenerateAndSpawnNewMaze()
     {
         Vector2Int ballPosId = Generate();
@@ -138,6 +150,7 @@ public class MazeController : MonoBehaviour
             Destroy(this.wallsOn);
             Destroy(this.wallsOff);
             Destroy(this.floor);
+            Destroy(this.exitPad);
             this.agent.transform.localRotation = Quaternion.identity;
         }
 
@@ -145,6 +158,7 @@ public class MazeController : MonoBehaviour
         this.wallsOn = null;
         this.wallsOff = null;
         this.floor = null;
+        this.exitPad = null;
         this.grid = null;
     }
 
