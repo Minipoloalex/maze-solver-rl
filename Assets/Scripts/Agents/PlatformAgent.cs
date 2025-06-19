@@ -7,6 +7,7 @@ using Random = UnityEngine.Random;
 /// <summary>
 /// Generic platform agent parent class (to be inherited by others)
 /// </summary>
+[RequireComponent(typeof(FloorController))]
 public abstract class PlatformAgent : Agent
 {
     public MazeController controller;
@@ -14,12 +15,15 @@ public abstract class PlatformAgent : Agent
     public GameObject ball;
     public Transform _ballGridAnchorTransform;
     protected Rigidbody m_BallRb;
+    protected FloorController floor;
+
     public override void Initialize()
     {
         if (ball != null)
         {
             SetBall(ball);
         }
+        floor = GetComponent<FloorController>();
     }
     public virtual void Init(GameObject ball, GameObject ballGridAnchor)
     {
@@ -44,26 +48,30 @@ public abstract class PlatformAgent : Agent
     }
     public override void OnActionReceived(ActionBuffers actionBuffers)
     {
-        var actionZ = 2f * Mathf.Clamp(actionBuffers.ContinuousActions[0], -1f, 1f);
-        var actionX = 2f * Mathf.Clamp(actionBuffers.ContinuousActions[1], -1f, 1f);
+        float inputX = actionBuffers.ContinuousActions[0];
+        float inputZ = actionBuffers.ContinuousActions[1];
+        floor.ApplyTilt(inputX, inputZ);
 
-        if ((gameObject.transform.rotation.z < 0.25f && actionZ > 0f) ||
-            (gameObject.transform.rotation.z > -0.25f && actionZ < 0f))
-        {
-            gameObject.transform.Rotate(new Vector3(0, 0, 1), actionZ);
-        }
+        // var actionZ = 2f * Mathf.Clamp(actionBuffers.ContinuousActions[0], -1f, 1f);
+        // var actionX = 2f * Mathf.Clamp(actionBuffers.ContinuousActions[1], -1f, 1f);
 
-        if ((gameObject.transform.rotation.x < 0.25f && actionX > 0f) ||
-            (gameObject.transform.rotation.x > -0.25f && actionX < 0f))
-        {
-            gameObject.transform.Rotate(new Vector3(1, 0, 0), actionX);
-        }
+        // if ((gameObject.transform.rotation.z < 0.25f && actionZ > 0f) ||
+        //     (gameObject.transform.rotation.z > -0.25f && actionZ < 0f))
+        // {
+        //     gameObject.transform.Rotate(new Vector3(0, 0, 1), actionZ);
+        // }
+
+        // if ((gameObject.transform.rotation.x < 0.25f && actionX > 0f) ||
+        //     (gameObject.transform.rotation.x > -0.25f && actionX < 0f))
+        // {
+        //     gameObject.transform.Rotate(new Vector3(1, 0, 0), actionX);
+        // }
     }
     public override void Heuristic(in ActionBuffers actionsOut)
     {
         // Allows testing the balance platform with the arrow keys
         var continuousActionsOut = actionsOut.ContinuousActions;
-        continuousActionsOut[0] = -Input.GetAxis("Horizontal");
+        continuousActionsOut[0] = Input.GetAxis("Horizontal");
         continuousActionsOut[1] = Input.GetAxis("Vertical");
     }
 }
