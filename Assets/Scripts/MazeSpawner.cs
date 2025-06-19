@@ -50,6 +50,7 @@ public class MazeSpawner : MonoBehaviour
     {
         var container = new GameObject("Walls");
         container.transform.SetParent(parent);
+        container.transform.position = parent.transform.position;
         return container;
     }
 
@@ -57,6 +58,7 @@ public class MazeSpawner : MonoBehaviour
     {
         var container = new GameObject("FloorTriggers");
         container.transform.SetParent(parent);
+        container.transform.position = parent.transform.position;
         return container;
     }
 

@@ -88,7 +88,7 @@ MonoBehaviour:
     hasUpgradedBrainParametersWithActionSpec: 1
   m_Model: {fileID: 5022602860645237092, guid: f2b0435c3e1b8bcfabe45833b79bbdee, type: 3}
   m_InferenceDevice: 2
-  m_BehaviorType: 0
+  m_BehaviorType: 1
   m_BehaviorName: MazeBBT
   TeamId: 0
   m_UseChildSensors: 1
