@@ -10,8 +10,8 @@ GameObject:
   m_Component:
   - component: {fileID: 6287002169616056346}
   - component: {fileID: 8644549915309980052}
-  - component: {fileID: 893199119149465914}
   - component: {fileID: 8649420691284167125}
+  - component: {fileID: 3377298606311444628}
   m_Layer: 0
   m_Name: PlatformAgent
   m_TagString: Untagged
@@ -57,7 +57,7 @@ MonoBehaviour:
     VectorActionDescriptions: []
     VectorActionSpaceType: 1
     hasUpgradedBrainParametersWithActionSpec: 1
-  m_Model: {fileID: 0}
+  m_Model: {fileID: 5022602860645237092, guid: f2b0435c3e1b8bcfabe45833b79bbdee, type: 3}
   m_InferenceDevice: 2
   m_BehaviorType: 0
   m_BehaviorName: MazeBBT
@@ -66,30 +66,6 @@ MonoBehaviour:
   m_UseChildActuators: 1
   m_DeterministicInference: 0
   m_ObservableAttributeHandling: 0
---- !u!114 &893199119149465914
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1183898981796164770}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 54be7174027687f098a5081f6663274a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  agentParameters:
-    maxStep: 0
-  hasUpgradedFromAgentParameters: 1
-  MaxStep: 5000
-  controller: {fileID: 0}
-  worldExitPosition: {x: 0, y: 0, z: 0}
-  ball: {fileID: 0}
-  _ballGridAnchorTransform: {fileID: 0}
-  targetPosition: {x: 0, y: 0, z: 0}
-  goalReachedDistanceThreshold: 0.5
-  progressRewardScale: 0.1
-  distanceMagnitudeRewardScale: 0.1
 --- !u!114 &8649420691284167125
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -105,6 +81,30 @@ MonoBehaviour:
   DecisionPeriod: 5
   DecisionStep: 0
   TakeActionsBetweenDecisions: 1
+--- !u!114 &3377298606311444628
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1183898981796164770}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ce1002f67ead4215fa4475c6f2af19b9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  agentParameters:
+    maxStep: 0
+  hasUpgradedFromAgentParameters: 1
+  MaxStep: 0
+  controller: {fileID: 0}
+  worldExitPosition: {x: 0, y: 0, z: 0}
+  ball: {fileID: 0}
+  _ballGridAnchorTransform: {fileID: 0}
+  targetPosition: {x: 0, y: 0, z: 0}
+  goalReachedDistanceThreshold: 0.5
+  progressRewardScale: 0.1
+  distanceMagnitudeRewardScale: 0.1
 --- !u!1001 &3407481186748126993
 PrefabInstance:
   m_ObjectHideFlags: 0
