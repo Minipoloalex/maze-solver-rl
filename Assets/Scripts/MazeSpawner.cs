@@ -3,8 +3,6 @@ using UnityEngine;
 /// <summary>
 /// Contains methods to spawn objects in the scene
 /// </summary>
-
-
 public class MazeSpawner : MonoBehaviour
 {
     [HideInInspector] public Vector2Int gridSize;
@@ -14,16 +12,25 @@ public class MazeSpawner : MonoBehaviour
     public GameObject wallPrefab;   // 1x1x1 
     public GameObject floorPrefab;  // 1x1x1 cube (for trigger purpose only)
     public GameObject ballPrefab;   // sphere: radius = 1
+    [Tooltip("Helper for agent to track ball")] // allows agent to have a grid sensor component on the ball
+    public GameObject ballGridAnchorPrefab;
     public GameObject floorTriggerPrefab;   // prefab with script for on hover (see ghostPrefab)
     public GameObject ghostPrefab;  // 1x1x1 cube (transparent): shown on hover (when adding a new wall)
+    public GameObject exitPadPrefab;    // prefab 1 x 1 x 1: represents the exit (only for visualisation for now)
+    [Tooltip("Y-scaling for the exit pad prefab")]
+    public float exitPadScalingY = 0.01f; // should be about 0.1f
 
     [Header("Scales")]
     public Vector3 wallScale = Vector3.one;
     public Vector3 ballScale = Vector3.one;
 
-    public GameObject SpawnPlatformAgent(Transform parent)
+    public GameObject SpawnPlatformAgent(Transform parent, MazeController controller, Vector2Int exitPosId)
     {
-        return Instantiate(platformAgentPrefab, parent.position, parent.rotation, parent);
+        var agent = Instantiate(platformAgentPrefab, parent.position, parent.rotation, parent);
+        var agentScript = agent.GetComponent<PlatformAgent>();
+        agentScript.controller = controller;
+        agentScript.worldExitPosition = GetWorldRelativePosition(exitPosId);
+        return agent;
     }
 
     public GameObject SpawnFloor(Transform parent)
@@ -84,6 +91,18 @@ public class MazeSpawner : MonoBehaviour
 
         return trigger;
     }
+    public GameObject SpawnExitPad(Transform parent, Vector2Int posId)
+    {
+        Vector3 pos = GetWorldRelativePosition(posId, height: exitPadScalingY / 2);
+
+        var exitPad = Instantiate(exitPadPrefab, parent.position + pos, parent.rotation, parent);
+        exitPad.transform.localPosition = pos;
+        exitPad.transform.localRotation = Quaternion.identity;
+
+        exitPad.transform.localScale = Vector3.Scale(exitPad.transform.localScale, wallScale);
+        exitPad.transform.localScale = Vector3.Scale(exitPad.transform.localScale, new Vector3(1, exitPadScalingY, 1));
+        return exitPad;
+    }
 
     public GameObject SpawnBall(Transform parent, Vector2Int posId, MazeController controller)
     {
@@ -94,8 +113,14 @@ public class MazeSpawner : MonoBehaviour
 
         return ball;
     }
-
-    public Vector3 GetWorldRelativePosition(Vector2Int posId)
+    // no longer instantiated in runtime (because requires registering the sensor)
+    // public GameObject SpawnBallGridAnchor(Transform agentParent, Transform ballTransform)
+    // {
+    //     var ballGridAnchor = Instantiate(ballGridAnchorPrefab, ballTransform.position, agentParent.rotation, agentParent);
+    //     ballGridAnchor.transform.localScale = Vector3.Scale(ballGridAnchor.transform.localScale, ballScale);
+    //     return ballGridAnchor;
+    // }
+    public Vector3 GetWorldRelativePosition(Vector2Int posId, float height=0.5f)
     {
         // x are columns, z are rows
         float zShift = ((gridSize.y - 1) / 2.0f) * wallScale.z;
@@ -104,7 +129,7 @@ public class MazeSpawner : MonoBehaviour
         int c = posId.y;
 
         // flip Z so row 0 is top
-        Vector3 pos = new Vector3(c - xShift, 0.5f, (gridSize.y - 1 - r) - zShift);
+        Vector3 pos = new Vector3(c - xShift, height, (gridSize.y - 1 - r) - zShift);
 
         return pos;
     }

@@ -8,8 +8,11 @@ public class MazeController : MonoBehaviour
     public bool allowRuntimeModifications = true; // TODO: in case clicker stuff is slow, do not spawn it (not implemented yet)
 
     [Header("Maze Random Generation Parameters")]
+    [Tooltip("Whether to generate a random maze or use the given seed")]
     public bool useRandomSeedForGenerator = true;
+    [Tooltip("Seed to use for maze generation in case we should not generate a new random maze")]
     public int mazeGeneratorSeed = 0;
+    [Range(0f, 1f)]
     public float mazeGeneratorDifficulty = 0.2f;
     [Header("Maze width")]
     public int mazeGeneratorMinWidth = 5;
@@ -26,7 +29,12 @@ public class MazeController : MonoBehaviour
     [HideInInspector] public MazeSpawner spawner;
     [HideInInspector] public GameObject wallsOn;
     [HideInInspector] public GameObject wallsOff;
-
+    private GameObject agent;
+    private GameObject floor;
+    private GameObject ball;
+    private GameObject ballGridAnchor;
+    private GameObject exitPad;
+    
     public Vector2Int Generate()
     {
         Vector2Int ballPosId;
@@ -35,10 +43,10 @@ public class MazeController : MonoBehaviour
         if (generateRandomMaze)
         {
             int currentSeed = useRandomSeedForGenerator ? UnityEngine.Random.Range(int.MinValue, int.MaxValue) : mazeGeneratorSeed;
+            UnityEngine.Random.InitState(currentSeed);
 
-            // Ensure positive dimensions for the generator
-            int genWidth = Mathf.Max(mazeGeneratorMinWidth, mazeGeneratorMaxWidth);
-            int genHeight = Mathf.Max(mazeGeneratorMinHeight, mazeGeneratorMaxHeight);
+            int genWidth = UnityEngine.Random.Range(mazeGeneratorMinWidth, mazeGeneratorMaxWidth + 1);
+            int genHeight = UnityEngine.Random.Range(mazeGeneratorMinHeight, mazeGeneratorMaxHeight + 1);
 
             this.grid = MazeGenerator.GenerateMazeForRuntimeGrid(
                 genWidth,
@@ -68,8 +76,20 @@ public class MazeController : MonoBehaviour
     {
         // For each of the maze's components,
         // create a view for them
-        GameObject agent = spawner.SpawnPlatformAgent(transform);
-        GameObject floor = spawner.SpawnFloor(agent.transform);
+        if (this.agent == null)
+        {
+            this.agent = spawner.SpawnPlatformAgent(transform, this, exitPosId);
+            this.ball ??= spawner.SpawnBall(this.transform, ballPosId, this);
+            this.ballGridAnchor = agent.transform.Find("BallGridAnchor").gameObject;
+            this.MoveBallAnchor();
+
+            // Give the agent all the information
+            // that it might need in the future
+            PlatformAgent agentScript = agent.GetComponent<PlatformAgent>();
+            agentScript.Init(this.ball, this.ballGridAnchor);
+        }
+
+        this.floor = spawner.SpawnFloor(agent.transform);
         this.wallsOn = spawner.SpawnWallsContainer(agent.transform);
         this.wallsOff = spawner.SpawnFloorTriggersContainer(agent.transform);
         for (int row = 0; row < grid.Length; row++)
@@ -89,12 +109,7 @@ public class MazeController : MonoBehaviour
                 }
             }
         }
-        GameObject ball = spawner.SpawnBall(this.transform, ballPosId, this);
-
-        // Give the agent all the information
-        // that it might need in the future
-        PlatformAgent agentScript = agent.GetComponent<PlatformAgent>();
-        agentScript.Init(ball);
+        this.exitPad = spawner.SpawnExitPad(agent.transform, exitPosId);
     }
 
     public void SwitchWallToFloor(Vector2Int posId, GameObject wallObject)
@@ -110,11 +125,51 @@ public class MazeController : MonoBehaviour
         spawner.SpawnWall(wallsOn.transform, posId, this);
         Destroy(floorObject); // floor trigger gone: replaced by wall, runtime grid updated
     }
-
-    public void Start()
+    private void MoveBall(Vector2Int newBallPosId)
+    {
+        Vector3 pos = spawner.GetWorldRelativePosition(newBallPosId);
+        ball.transform.localPosition = pos;
+    }
+    public void MoveBallAnchor()
+    {
+        Vector3 ballLocalPosOnPlatform = agent.transform.InverseTransformPoint(ball.transform.position);
+        ballGridAnchor.transform.localPosition = ballLocalPosOnPlatform;
+    }
+    private void GenerateAndSpawnNewMaze()
     {
         Vector2Int ballPosId = Generate();
         SetupSpawner();
         Spawn(ballPosId);
+        MoveBall(ballPosId);
+    }
+    private void CleanUpMaze()
+    {
+        // Destroy every child of agent: floor, wallsOn, wallsOff (keep agent)
+        if (agent != null)
+        {
+            Destroy(this.wallsOn);
+            Destroy(this.wallsOff);
+            Destroy(this.floor);
+            Destroy(this.exitPad);
+            this.agent.transform.localRotation = Quaternion.identity;
+        }
+
+        // nullify explicitly (though I think it makes no difference)
+        this.wallsOn = null;
+        this.wallsOff = null;
+        this.floor = null;
+        this.exitPad = null;
+        this.grid = null;
+    }
+
+    public void Start()
+    {
+        GenerateAndSpawnNewMaze();
+    }
+    public void ResetMaze()
+    {
+        CleanUpMaze();
+        agent.transform.localRotation = Quaternion.identity;
+        GenerateAndSpawnNewMaze();
     }
 }
