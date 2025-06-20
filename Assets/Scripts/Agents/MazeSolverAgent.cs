@@ -160,7 +160,6 @@ public class MazeSolverAgent : PlatformAgent
         {
             Debug.LogError($"Distance from BFS was -1 (not visited), position: {ballCell}");
         }
-        Debug.Log(ballCell);
         float normalizedDistance = (float)distance / maxDistance;
         return normalizedDistance;
     }
