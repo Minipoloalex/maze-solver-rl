@@ -23,7 +23,11 @@ public class MazeSolverAgent : PlatformAgent
     [Header("Reward scale for distance, with simple distance rewards")]
     public float distanceMagnitudeRewardScale = 0.1f;     // check code use
 
+    [Header("Max Reward value for bfs distance")]
+    public float maxRewardBfs = 0.001f;  // should depend on number of timesteps and other set rewards
+
     private float prevDistanceToExit;
+    private BfsResult bfsResult;
 
     public override void Initialize()
     {
@@ -53,6 +57,7 @@ public class MazeSolverAgent : PlatformAgent
             SetEnvParameters(envParameters);
         }
         controller.ResetMaze();
+        bfsResult = MazePathfinderBFS.SearchBFS(controller.grid, controller.exitPosId.x, controller.exitPosId.y);
     }
 
     /// <summary>
@@ -100,18 +105,29 @@ public class MazeSolverAgent : PlatformAgent
         }
         else
         {
-            Vector3 posDiff = GetBallPositionDifferenceToExit();
-            float distanceToExit = new Vector2(posDiff.x, posDiff.z).magnitude;
-            if (distanceToExit < goalReachedDistanceThreshold) // If ball is within half a cell width of the exit
+            // Vector3 posDiff = GetBallPositionDifferenceToExit();
+            // float distanceToExit = new Vector2(posDiff.x, posDiff.z).magnitude;
+            // if (distanceToExit < goalReachedDistanceThreshold) // If ball is within half a cell width of the exit
+            // {
+            //     Debug.Log("Goal Reached!");
+            //     SetReward(1.0f); // Positive reward for reaching the goal
+            //     EndEpisode();
+            //     return;
+            // }
+
+            // AddReward(RewardBasedOnProgress(distanceToExit));
+            // AddReward(-0.001f);
+
+            float normalizedDistanceToExitBfs = GetNormalizedDistanceToExitBFS();
+            if (normalizedDistanceToExitBfs == 0)
             {
                 Debug.Log("Goal Reached!");
                 SetReward(1.0f); // Positive reward for reaching the goal
                 EndEpisode();
                 return;
             }
-
-            AddReward(RewardBasedOnProgress(distanceToExit));
-            AddReward(-0.001f);
+            // Should be negative to make the agent want to end as fast as possible
+            AddReward(RewardBasedOnBFS(normalizedDistanceToExitBfs));
         }
     }
 
@@ -128,5 +144,29 @@ public class MazeSolverAgent : PlatformAgent
         float distanceDelta = prevDistanceToExit - curDistanceToExit;
         prevDistanceToExit = curDistanceToExit;
         return distanceDelta * progressRewardScale;
+    }
+    private float GetNormalizedDistanceToExitBFS()
+    {
+        int maxDistance = controller.grid.RowCount * 2 + controller.grid.ColCount * 2;
+
+        // Get the cell (r, c) where the ball is
+        // Need to "un"-rotate the ball back (as if the plane had no rotation)
+        Quaternion planeRot = gameObject.transform.localRotation;
+        Vector3 ballUnrotatedPos = Quaternion.Inverse(planeRot) * ball.transform.localPosition;
+        Vector2Int ballCell = controller.spawner.GetPosIdFromWorldRelativePosition(ballUnrotatedPos);
+
+        int distance = bfsResult.GetDistanceTo(ballCell);
+        if (distance == -1)
+        {
+            Debug.LogError($"Distance from BFS was -1 (not visited), position: {ballCell}");
+        }
+        Debug.Log(ballCell);
+        float normalizedDistance = (float)distance / maxDistance;
+        return normalizedDistance;
+    }
+    private float RewardBasedOnBFS(float normalizedDistanceToExitBfs)
+    {
+        float reward = -normalizedDistanceToExitBfs * maxRewardBfs;
+        return reward;
     }
 }

@@ -86,9 +86,9 @@ MonoBehaviour:
     VectorActionDescriptions: []
     VectorActionSpaceType: 1
     hasUpgradedBrainParametersWithActionSpec: 1
-  m_Model: {fileID: 5022602860645237092, guid: f2b0435c3e1b8bcfabe45833b79bbdee, type: 3}
+  m_Model: {fileID: 5022602860645237092, guid: 8900142df8eecb823bda5c319834e042, type: 3}
   m_InferenceDevice: 2
-  m_BehaviorType: 1
+  m_BehaviorType: 0
   m_BehaviorName: MazeBBT
   TeamId: 0
   m_UseChildSensors: 1
@@ -125,7 +125,7 @@ MonoBehaviour:
   agentParameters:
     maxStep: 0
   hasUpgradedFromAgentParameters: 1
-  MaxStep: 0
+  MaxStep: 5000
   controller: {fileID: 0}
   worldExitPosition: {x: 0, y: 0, z: 0}
   ball: {fileID: 0}
