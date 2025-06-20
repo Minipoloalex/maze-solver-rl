@@ -34,7 +34,7 @@ public class MazeController : MonoBehaviour
     private GameObject ball;
     private GameObject ballGridAnchor;
     private GameObject exitPad;
-    
+
     public Vector2Int Generate()
     {
         Vector2Int ballPosId;

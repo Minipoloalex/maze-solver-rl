@@ -1,3 +1,5 @@
+env_settings:
+  num_areas: 16
 behaviors:
   MazeBBT:
     trainer_type: ppo               # SAC also works; PPO is default & stable
@@ -12,12 +14,13 @@ behaviors:
     network_settings:
       hidden_units: 128
       num_layers: 2
-      memory:
+      memory:   # LSTM
         sequence_length: 64         # gives the agent short-term memory
         memory_size: 256
       normalize: true
-      vis_encode_type: fully_connected
+      vis_encode_type: fully_connected  # for processing grid observation
       # vis_encode_type: simple
+
       # vibe-coded in: does it exist?
       # sensor_settings:
       #   - name: GridSensor  # name set in Unity editor

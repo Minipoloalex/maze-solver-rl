@@ -80,4 +80,6 @@ public class MazeRuntimeGrid
         get => maze[index];
     }
     public int Length => maze.Length;
+    public int RowCount => maze.Length;
+    public int ColCount => maze[0].Length; // Assumes a non-empty grid
 }
