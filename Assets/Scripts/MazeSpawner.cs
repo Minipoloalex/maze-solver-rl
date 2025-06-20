@@ -122,7 +122,7 @@ public class MazeSpawner : MonoBehaviour
     //     ballGridAnchor.transform.localScale = Vector3.Scale(ballGridAnchor.transform.localScale, ballScale);
     //     return ballGridAnchor;
     // }
-    public Vector3 GetWorldRelativePosition(Vector2Int posId, float height=0.5f)
+    public Vector3 GetWorldRelativePosition(Vector2Int posId, float height = 0.5f)
     {
         // x are columns, z are rows
         float zShift = ((gridSize.y - 1) / 2.0f) * wallScale.z;
@@ -134,5 +134,17 @@ public class MazeSpawner : MonoBehaviour
         Vector3 pos = new Vector3(c - xShift, height, (gridSize.y - 1 - r) - zShift);
 
         return pos;
+    }
+    public Vector2Int WorldToGridPos(Vector3 worldPos)
+    {
+        // Inverse of GetWorldRelativePosition
+        float zShift = ((gridSize.y - 1) / 2.0f) * wallScale.z;
+        float xShift = ((gridSize.x - 1) / 2.0f) * wallScale.x;
+
+        // Inverse the flip Z
+        int r = Mathf.RoundToInt((gridSize.y - 1) - (worldPos.z + zShift));
+        int c = Mathf.RoundToInt(worldPos.x + xShift);
+
+        return new Vector2Int(r, c);
     }
 }
