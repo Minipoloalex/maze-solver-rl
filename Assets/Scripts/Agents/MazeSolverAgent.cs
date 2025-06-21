@@ -3,7 +3,7 @@ using Unity.MLAgents;
 using Unity.MLAgents.Sensors;
 using Unity.MLAgents.Actuators;
 using Random = UnityEngine.Random;
-
+using System.Diagnostics;
 
 /// <summary>
 /// Agent to solve the maze
@@ -36,13 +36,17 @@ public class MazeSolverAgent : PlatformAgent
     }
     private void SetEnvParameters(EnvironmentParameters envParams)
     {
-        Debug.Log(envParams);
+        UnityEngine.Debug.Log(envParams);
         var difficulty = envParams.GetWithDefault("difficulty", 0.5f);
         var seed = (int)envParams.GetWithDefault("maze_seed", 0f);
-        controller.mazeGeneratorSeed = seed;
+
+        int processId = Process.GetCurrentProcess().Id;
+        int uniqueSeed = (int)seed + processId;
+
+        controller.mazeGeneratorSeed = uniqueSeed;
         controller.mazeGeneratorDifficulty = difficulty;
 
-        Debug.Log($"Episode Start for training: Difficulty={difficulty}, MazeSeed={seed}");
+        UnityEngine.Debug.Log($"Episode Start for training: Difficulty={difficulty}, MazeSeed={seed}");
     }
     public override void OnEpisodeBegin()
     {
@@ -74,19 +78,38 @@ public class MazeSolverAgent : PlatformAgent
         Vector3 posDiff = projectedPoint - worldExitPosition;
         return posDiff;
     }
+    private Vector2Int GetBallPositionIdDifferenceToExit()
+    {
+        Vector2Int cell = GetCellId(ball.transform.localPosition);
+        Vector2Int exitCell = controller.exitPosId;
+        return exitCell - cell;
+    }
+    private Vector2 GetShiftRelativeToCenterOfCell(Vector3 pos)
+    {
+        Vector2Int cell = GetCellId(pos);
+        Vector3 centerPos = controller.spawner.GetWorldRelativePosition(cell);
+        Vector3 actualPos = GetUnrotatedPosition(pos);
+        return new Vector2(centerPos.x, centerPos.z) - new Vector2(actualPos.x, actualPos.z);
+    }
     public override void CollectObservations(VectorSensor sensor)
     {
         // Rotation values from the platform (4d)
         sensor.AddObservation(gameObject.transform.localRotation);
 
         // Values from the ball: relative position and linear velocity
-        sensor.AddObservation(ball.transform.localPosition); // 3d
+        Vector2 ballPositionShift = GetShiftRelativeToCenterOfCell(ball.transform.localPosition);
+        sensor.AddObservation(ballPositionShift);   // 2d
+
+        // sensor.AddObservation(ball.transform.localPosition); // 3d
         sensor.AddObservation(m_BallRb.linearVelocity); // 3d
 
         // relative position to the target (2d: x, z)
         // Add observations for the calculated projected point's coordinates
-        Vector3 posDiff = GetBallPositionDifferenceToExit();
-        sensor.AddObservation(new Vector2(posDiff.x, posDiff.z));
+        // Vector3 posDiff = GetBallPositionDifferenceToExit();
+        // sensor.AddObservation(new Vecthor2(posDiff.x, posDiff.z));
+
+        Vector2Int posIdDiff = GetBallPositionIdDifferenceToExit();
+        sensor.AddObservation(posIdDiff);
     }
     public override void OnActionReceived(ActionBuffers actionBuffers)
     {
@@ -121,7 +144,7 @@ public class MazeSolverAgent : PlatformAgent
             float normalizedDistanceToExitBfs = GetNormalizedDistanceToExitBFS();
             if (normalizedDistanceToExitBfs == 0)
             {
-                Debug.Log("Goal Reached!");
+                UnityEngine.Debug.Log("Goal Reached!");
                 SetReward(10.0f); // Positive reward for reaching the goal
                 EndEpisode();
                 return;
@@ -145,20 +168,32 @@ public class MazeSolverAgent : PlatformAgent
         prevDistanceToExit = curDistanceToExit;
         return distanceDelta * progressRewardScale;
     }
+    private Vector3 GetUnrotatedPosition(Vector3 pos)
+    {
+        // Get the cell (r, c) where pos is
+        // Need to "un"-rotate the position back (as if the plane had no rotation)
+        Quaternion planeRot = gameObject.transform.localRotation;
+        Vector3 unrotatedPos = Quaternion.Inverse(planeRot) * pos;
+        return unrotatedPos;
+    }
+    private Vector2Int GetCellId(Vector3 pos)
+    {
+        Vector3 unrotatedPos = GetUnrotatedPosition(pos);
+        Vector2Int cell = controller.spawner.GetPosIdFromWorldRelativePosition(unrotatedPos);
+        return cell;
+    }
     private float GetNormalizedDistanceToExitBFS()
     {
         int maxDistance = controller.grid.RowCount * 2 + controller.grid.ColCount * 2;
 
         // Get the cell (r, c) where the ball is
         // Need to "un"-rotate the ball back (as if the plane had no rotation)
-        Quaternion planeRot = gameObject.transform.localRotation;
-        Vector3 ballUnrotatedPos = Quaternion.Inverse(planeRot) * ball.transform.localPosition;
-        Vector2Int ballCell = controller.spawner.GetPosIdFromWorldRelativePosition(ballUnrotatedPos);
+        Vector2Int ballCell = GetCellId(ball.transform.localPosition);
 
         int distance = bfsResult.GetDistanceTo(ballCell);
         if (distance == -1)
         {
-            Debug.LogError($"Distance from BFS was -1 (not visited), position: {ballCell}");
+            UnityEngine.Debug.LogError($"Distance from BFS was -1 (not visited), position: {ballCell}");
         }
         float normalizedDistance = (float)distance / maxDistance;
         return normalizedDistance;
