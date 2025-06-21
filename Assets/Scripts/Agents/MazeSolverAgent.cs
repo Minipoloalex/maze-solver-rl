@@ -122,7 +122,7 @@ public class MazeSolverAgent : PlatformAgent
             if (normalizedDistanceToExitBfs == 0)
             {
                 Debug.Log("Goal Reached!");
-                SetReward(1.0f); // Positive reward for reaching the goal
+                SetReward(10.0f); // Positive reward for reaching the goal
                 EndEpisode();
                 return;
             }

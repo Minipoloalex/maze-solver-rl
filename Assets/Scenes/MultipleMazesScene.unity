@@ -527,7 +527,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   baseArea: {fileID: 1562418128}
-  numAreas: 16
+  numAreas: 32
   separation: 30
   buildOnly: 0
 --- !u!4 &1319062449

@@ -1,5 +1,5 @@
 env_settings:
-  num_areas: 16
+  num_areas: 32
 behaviors:
   MazeBBT:
     trainer_type: ppo               # SAC also works; PPO is default & stable
@@ -12,10 +12,10 @@ behaviors:
       lambd: 0.95
       num_epoch: 3
     network_settings:
-      hidden_units: 128
+      hidden_units: 256
       num_layers: 2
       memory:   # LSTM
-        sequence_length: 64         # gives the agent short-term memory
+        sequence_length: 128         # gives the agent short-term memory
         memory_size: 256
       normalize: true
       vis_encode_type: fully_connected  # for processing grid observation
@@ -29,7 +29,7 @@ behaviors:
       extrinsic:
         gamma: 0.99
         strength: 1.0
-    max_steps: 10e6                 # ~2-4 h on a modern GPU with 16 envs
+    max_steps: 20e6                 # ~2-4 h on a modern GPU with 16 envs
     time_horizon: 128
 
 environment_parameters:
@@ -39,4 +39,4 @@ environment_parameters:
 
   difficulty:               # later used for curriculum
     sampler_type: uniform
-    sampler_parameters: {min_value: 0.1, max_value: 1.0}
+    sampler_parameters: {min_value: 0.1, max_value: 0.1}

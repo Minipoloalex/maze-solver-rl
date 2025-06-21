@@ -3,6 +3,7 @@ using UnityEngine;
 
 /// <summary>
 /// Stores the maze grid. Basically, which cells currently contain a wall.
+/// By default, creates empty cells (no walls).
 /// </summary>
 public class MazeRuntimeGrid
 {
