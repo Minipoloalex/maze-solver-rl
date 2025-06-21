@@ -46,7 +46,7 @@ public class MazeSolverAgent : PlatformAgent
         controller.mazeGeneratorSeed = uniqueSeed;
         controller.mazeGeneratorDifficulty = difficulty;
 
-        UnityEngine.Debug.Log($"Episode Start for training: Difficulty={difficulty}, MazeSeed={seed}");
+        UnityEngine.Debug.Log($"Episode Start for training: Difficulty={difficulty}, MazeSeed={uniqueSeed}");
     }
     public override void OnEpisodeBegin()
     {
@@ -106,7 +106,7 @@ public class MazeSolverAgent : PlatformAgent
         // relative position to the target (2d: x, z)
         // Add observations for the calculated projected point's coordinates
         // Vector3 posDiff = GetBallPositionDifferenceToExit();
-        // sensor.AddObservation(new Vecthor2(posDiff.x, posDiff.z));
+        // sensor.AddObservation(new Vector2(posDiff.x, posDiff.z));
 
         Vector2Int posIdDiff = GetBallPositionIdDifferenceToExit();
         sensor.AddObservation(posIdDiff);
