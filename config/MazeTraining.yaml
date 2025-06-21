@@ -28,6 +28,31 @@ behaviors:
         strength: 1.0
     max_steps: 10e6                 # ~2-4 h on a modern GPU with 16 envs
     time_horizon: 128
+  
+  HierarchicalMazeAgent:
+    trainer_type: ppo
+    hyperparameters:
+      learning_rate: 3e-4
+      batch_size: 1024
+      buffer_size: 20480
+      beta: 5e-4
+      epsilon: 0.2
+      lambd: 0.95
+      num_epoch: 3
+    network_settings:
+      hidden_units: 128
+      num_layers: 2
+      memory:
+        sequence_length: 64
+        memory_size: 256
+      normalize: true
+      vis_encode_type: fully_connected
+    reward_signals:
+      extrinsic:
+        gamma: 0.99
+        strength: 1.0
+    max_steps: 10e6
+    time_horizon: 128
 
 environment_parameters:
   maze_seed:

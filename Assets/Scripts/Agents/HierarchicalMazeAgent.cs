@@ -26,39 +26,35 @@ public class HierarchicalMazeAgent : PlatformAgent
     /// </summary>
     public override void OnEpisodeBegin()
     {
+        Debug.Log("--- HIERARCHICAL AGENT: OnEpisodeBegin ---");
+        
         // 1. Reset the maze environment
         controller.ResetMaze();
+        Debug.Log("Maze reset complete. Ready to find path.");
 
-        // 2. Find the start and end points from the controller
-        // Note: ResetMaze() generates the grid and ball/exit positions.
-        Vector2Int ballStartGridPos = new Vector2Int(-1, -1);
-        for(int r = 0; r < controller.grid.Length; r++)
-        {
-            for(int c = 0; c < controller.grid[r].Length; c++)
-            {
-                // This is a simplification; a more robust way to get ball pos is needed.
-                // We'll assume the ball's initial transform position can be mapped back to grid coords.
-            }
-        }
-        // For this example, let's get start/exit directly from the controller after generation
-        Vector2Int startPos = controller.spawner.WorldToGridPos(ball.transform.position); // You'll need to implement WorldToGridPos
+        // 2. Find the start and end points
+        Vector2Int startPos = controller.spawner.WorldToGridPos(ball.transform.localPosition);
         Vector2Int exitPos = controller.exitPosId;
+        Debug.Log($"Pathfinding from Start:{startPos} to Exit:{exitPos}.");
 
         // 3. Use the Pathfinder to get the list of waypoints
         _path = Pathfinder.FindPath(controller.grid, startPos, exitPos);
 
         if (_path == null || _path.Count == 0)
         {
-            Debug.LogWarning("No path found. Ending episode.");
+            Debug.LogWarning($"Path not found or is empty from {startPos} to {exitPos}. Ending episode.");
             EndEpisode();
-            return;
+            return; // Important: stops the method here if no path is found
         }
+        
+        Debug.Log($"Path found with {_path.Count} steps. Setting first sub-goal.");
 
         // 4. Set the first sub-goal
         _currentPathIndex = 0;
         SetNextSubGoal();
-
         _distanceToSubGoal = Vector3.Distance(GetProjectedBallPosition(), _currentSubGoalWorldPos);
+        
+        Debug.Log("--- HIERARCHICAL AGENT: Episode Start Complete ---");
     }
 
     /// <summary>
@@ -142,6 +138,7 @@ public class HierarchicalMazeAgent : PlatformAgent
                 Debug.Log("Sub-goal reached!");
                 AddReward(0.5f); // Reward for reaching an intermediate step
                 SetNextSubGoal(); // Set the next target
+                return; // <--- ADD THIS LINE
             }
         }
     }

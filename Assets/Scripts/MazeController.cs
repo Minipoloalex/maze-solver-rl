@@ -3,6 +3,12 @@ using UnityEngine.Assertions;
 
 public class MazeController : MonoBehaviour
 {
+    [Header("Agent Selection")]
+    [Tooltip("Check this to use the Hierarchical Agent. Uncheck to use the standard Maze Solver Agent.")]
+    public bool useHierarchicalAgent = false;
+    public GameObject mazeSolverAgentPrefab;
+    public GameObject hierarchicalAgentPrefab;
+
     [Header("Maze Parameters")]
     public bool generateRandomMaze = false;
     public bool allowRuntimeModifications = true; // TODO: in case clicker stuff is slow, do not spawn it (not implemented yet)
@@ -34,7 +40,7 @@ public class MazeController : MonoBehaviour
     private GameObject ball;
     private GameObject ballGridAnchor;
     private GameObject exitPad;
-    
+
     public Vector2Int Generate()
     {
         Vector2Int ballPosId;
@@ -78,7 +84,23 @@ public class MazeController : MonoBehaviour
         // create a view for them
         if (this.agent == null)
         {
-            this.agent = spawner.SpawnPlatformAgent(transform, this, exitPosId);
+            // --- START OF MODIFIED BLOCK ---
+
+            // 1. Choose which prefab to use based on the boolean toggle
+            GameObject prefabToSpawn = useHierarchicalAgent ? hierarchicalAgentPrefab : mazeSolverAgentPrefab;
+
+            // 2. Add a safety check to ensure a prefab is assigned in the editor
+            if (prefabToSpawn == null)
+            {
+                Debug.LogError("The selected agent prefab is not assigned in the MazeController Inspector!", this);
+                return; // Stop execution to prevent further errors
+            }
+
+            // 3. Pass the chosen prefab to the spawner's modified method
+            this.agent = spawner.SpawnPlatformAgent(prefabToSpawn, transform, this, exitPosId);
+
+            // --- END OF MODIFIED BLOCK ---
+
             this.ball ??= spawner.SpawnBall(this.transform, ballPosId, this);
             this.ballGridAnchor = agent.transform.Find("BallGridAnchor").gameObject;
             this.MoveBallAnchor();

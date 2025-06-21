@@ -8,7 +8,6 @@ public class MazeSpawner : MonoBehaviour
     [HideInInspector] public Vector2Int gridSize;
 
     [Header("Prefabs")]
-    public GameObject platformAgentPrefab;
     public GameObject wallPrefab;   // 1x1x1 
     public GameObject floorPrefab;  // 1x1x1 cube (for trigger purpose only)
     public GameObject ballPrefab;   // sphere: radius = 1
@@ -24,9 +23,10 @@ public class MazeSpawner : MonoBehaviour
     public Vector3 wallScale = Vector3.one;
     public Vector3 ballScale = Vector3.one;
 
-    public GameObject SpawnPlatformAgent(Transform parent, MazeController controller, Vector2Int exitPosId)
+    public GameObject SpawnPlatformAgent(GameObject agentToSpawnPrefab, Transform parent, MazeController controller, Vector2Int exitPosId)
     {
-        var agent = Instantiate(platformAgentPrefab, parent.position, parent.rotation, parent);
+        // Now, the "agentToSpawnPrefab" used below is the one passed in as a parameter in the line above.
+        var agent = Instantiate(agentToSpawnPrefab, parent.position, parent.rotation, parent);
         var agentScript = agent.GetComponent<PlatformAgent>();
         agentScript.controller = controller;
         agentScript.worldExitPosition = GetWorldRelativePosition(exitPosId);
