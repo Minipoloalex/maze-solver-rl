@@ -1,12 +1,12 @@
 env_settings:
-  num_areas: 32
+  num_areas: 8
 behaviors:
   MazeBBT:
     trainer_type: ppo               # SAC also works; PPO is default & stable
     hyperparameters:
       learning_rate: 3e-4
-      batch_size: 1024
-      buffer_size: 20480
+      batch_size: 4096
+      buffer_size: 409600
       beta: 5e-4
       epsilon: 0.2
       lambd: 0.95
@@ -18,8 +18,8 @@ behaviors:
         sequence_length: 128         # gives the agent short-term memory
         memory_size: 256
       normalize: true
-      vis_encode_type: fully_connected  # for processing grid observation
-      # vis_encode_type: simple
+      # vis_encode_type: fully_connected  # for processing grid observation
+      vis_encode_type: simple
 
       # vibe-coded in: does it exist?
       # sensor_settings:

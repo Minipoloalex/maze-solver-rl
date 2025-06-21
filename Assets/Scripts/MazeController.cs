@@ -6,6 +6,8 @@ public class MazeController : MonoBehaviour
     [Header("Maze Parameters")]
     public bool generateRandomMaze = false;
     public bool allowRuntimeModifications = true; // TODO: in case clicker stuff is slow, do not spawn it (not implemented yet)
+    [Tooltip("Adds a border of walls around the maze. Useful for Grid Sensors. Should depend on the size of the grid sensors")]
+    public int mazePadding = 1;
 
     [Header("Maze Random Generation Parameters")]
     [Tooltip("Whether to generate a random maze or use the given seed")]
@@ -61,6 +63,12 @@ public class MazeController : MonoBehaviour
         {
             AsciiMazeLoader mazeLoader = gameObject.GetComponent<AsciiMazeLoader>();
             this.grid = mazeLoader.ReadGrid(out ballPosId, out exitPosId);
+        }
+
+        // Add padding to the generated grid if required
+        if (this.mazePadding > 0)
+        {
+            this.grid = MazePadding.Pad(this.grid, this.mazePadding, ref ballPosId, ref exitPosId);
         }
         return ballPosId;
     }

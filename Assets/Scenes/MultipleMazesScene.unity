@@ -527,7 +527,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   baseArea: {fileID: 1562418128}
-  numAreas: 32
+  numAreas: 8
   separation: 30
   buildOnly: 0
 --- !u!4 &1319062449
@@ -734,6 +734,10 @@ PrefabInstance:
     - target: {fileID: 4105244429791221119, guid: 9386e45ed811a7a9d81ab84be4fc4532, type: 3}
       propertyPath: m_IsActive
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7494988502704610439, guid: 9386e45ed811a7a9d81ab84be4fc4532, type: 3}
+      propertyPath: mazePadding
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7494988502704610439, guid: 9386e45ed811a7a9d81ab84be4fc4532, type: 3}
       propertyPath: mazeGeneratorSeed
