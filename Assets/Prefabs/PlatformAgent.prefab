@@ -78,7 +78,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_BrainParameters:
     VectorObservationSize: 12
-    NumStackedVectorObservations: 1
+    NumStackedVectorObservations: 3
     m_ActionSpec:
       m_NumContinuousActions: 2
       BranchSizes: 
@@ -86,7 +86,7 @@ MonoBehaviour:
     VectorActionDescriptions: []
     VectorActionSpaceType: 1
     hasUpgradedBrainParametersWithActionSpec: 1
-  m_Model: {fileID: 5022602860645237092, guid: fbd2e1e7b00377f1ab886521ba4d2269, type: 3}
+  m_Model: {fileID: 5022602860645237092, guid: 0e371b32029e8220fac17ab2d82bb5d3, type: 3}
   m_InferenceDevice: 2
   m_BehaviorType: 0
   m_BehaviorName: MazeBBT
