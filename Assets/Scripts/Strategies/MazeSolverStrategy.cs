@@ -14,13 +14,11 @@ public class MazeSolverStrategy : IStrategy
     public float maxRewardBfs = 0.001f;
 
     private StrategicPlatformAgent _agent;
-    private MazeController _maze;
     private BfsResult _bfsResult;
 
     public void Initialize(StrategicPlatformAgent agent)
     {
         _agent = agent;
-        _maze = agent.controller;
     }
 
     public void OnEpisodeBegin()
@@ -29,14 +27,14 @@ public class MazeSolverStrategy : IStrategy
         {
             // we will be custom-setting the seed with the environment parameters
             // it's still random, but requires the parameter be false
-            _maze.useRandomSeedForGenerator = false;
+            _agent.controller.useRandomSeedForGenerator = false;
 
             // Get the EnvironmentParameters object from the Academy
             var envParameters = Academy.Instance.EnvironmentParameters;
             SetEnvParameters(envParameters);
         }
-        _maze.ResetMaze();
-        _bfsResult = MazePathfinderBFS.SearchBFS(_maze.grid, _maze.exitPosId.x, _maze.exitPosId.y);
+        _agent.controller.ResetMaze();
+        _bfsResult = MazePathfinderBFS.SearchBFS(_agent.controller.grid, _agent.controller.exitPosId.x, _agent.controller.exitPosId.y);
     }
 
     private void SetEnvParameters(EnvironmentParameters envParams)
@@ -48,8 +46,8 @@ public class MazeSolverStrategy : IStrategy
         int processId = Process.GetCurrentProcess().Id;
         int uniqueSeed = (int)seed + processId;
 
-        _maze.mazeGeneratorSeed = uniqueSeed;
-        _maze.mazeGeneratorDifficulty = difficulty;
+        _agent.controller.mazeGeneratorSeed = uniqueSeed;
+        _agent.controller.mazeGeneratorDifficulty = difficulty;
 
         UnityEngine.Debug.Log($"Episode Start for training: Difficulty={difficulty}, MazeSeed={seed}");
     }
@@ -88,7 +86,7 @@ public class MazeSolverStrategy : IStrategy
     #region Helper Methods
     private float GetNormalizedDistanceToExitBFS()
     {
-        int maxDistance = _maze.grid.RowCount * 2 + _maze.grid.ColCount * 2;
+        int maxDistance = _agent.controller.grid.RowCount * 2 + _agent.controller.grid.ColCount * 2;
 
         // Get the cell (r, c) where the ball is
         // Need to "un"-rotate the ball back (as if the plane had no rotation)
@@ -107,17 +105,17 @@ public class MazeSolverStrategy : IStrategy
     {
         Quaternion planeRot = _agent.gameObject.transform.localRotation;
         Vector3 unrotatedPos = Quaternion.Inverse(planeRot) * localPos;
-        return _maze.spawner.GetPosIdFromWorldRelativePosition(unrotatedPos);
+        return _agent.controller.spawner.GetPosIdFromWorldRelativePosition(unrotatedPos);
     }
     private Vector2Int GetBallPositionIdDifferenceToExit()
     {
-        return _maze.exitPosId - GetCellId(_agent.ball.transform.localPosition);
+        return _agent.controller.exitPosId - GetCellId(_agent.ball.transform.localPosition);
     }
 
     private Vector2 GetShiftRelativeToCenterOfCell(Vector3 pos)
     {
         Vector2Int cell = GetCellId(pos);
-        Vector3 centerPos = _maze.spawner.GetWorldRelativePosition(cell);
+        Vector3 centerPos = _agent.controller.spawner.GetWorldRelativePosition(cell);
         Vector3 actualPos = GetUnrotatedPosition(pos);
         return new Vector2(centerPos.x, centerPos.z) - new Vector2(actualPos.x, actualPos.z);
     }

@@ -139,14 +139,14 @@ MonoBehaviour:
   agentParameters:
     maxStep: 0
   hasUpgradedFromAgentParameters: 1
-  MaxStep: 0
+  MaxStep: 5000
   controller: {fileID: 0}
   worldExitPosition: {x: 0, y: 0, z: 0}
   ball: {fileID: 0}
   _ballGridAnchorTransform: {fileID: 0}
   m_BallRb: {fileID: 0}
   floor: {fileID: 0}
-  selectedStrategy: 1
+  selectedStrategy: 0
   strategy:
     rid: -2
   references:

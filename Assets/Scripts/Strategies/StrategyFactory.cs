@@ -8,9 +8,6 @@ public static class StrategyFactory
     {
         switch (type)
         {
-            case StrategicPlatformAgent.StrategyType.BalanceToTarget:
-                return new BalanceToTargetStrategy();
-
             case StrategicPlatformAgent.StrategyType.MazeSolver:
                 return new MazeSolverStrategy();
 
