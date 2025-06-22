@@ -4,6 +4,7 @@ using UnityEngine;
 using Unity.MLAgents;
 using Unity.MLAgents.Sensors;
 using Unity.MLAgents.Actuators;
+using System.Diagnostics;
 
 [System.Serializable]
 public class MazeSolverStrategy : IStrategy
@@ -22,7 +23,7 @@ public class MazeSolverStrategy : IStrategy
         _maze = agent.controller;
     }
 
-    public override void OnEpisodeBegin()
+    public void OnEpisodeBegin()
     {
         if (Academy.Instance.IsCommunicatorOn)  // if we're training
         {
@@ -35,7 +36,7 @@ public class MazeSolverStrategy : IStrategy
             SetEnvParameters(envParameters);
         }
         _maze.ResetMaze();
-        bfsResult = MazePathfinderBFS.SearchBFS(_maze.grid, _maze.exitPosId.x, _maze.exitPosId.y);
+        _bfsResult = MazePathfinderBFS.SearchBFS(_maze.grid, _maze.exitPosId.x, _maze.exitPosId.y);
     }
 
     private void SetEnvParameters(EnvironmentParameters envParams)
@@ -116,9 +117,18 @@ public class MazeSolverStrategy : IStrategy
     private Vector2 GetShiftRelativeToCenterOfCell(Vector3 pos)
     {
         Vector2Int cell = GetCellId(pos);
-        Vector3 centerPos = controller.spawner.GetWorldRelativePosition(cell);
+        Vector3 centerPos = _maze.spawner.GetWorldRelativePosition(cell);
         Vector3 actualPos = GetUnrotatedPosition(pos);
         return new Vector2(centerPos.x, centerPos.z) - new Vector2(actualPos.x, actualPos.z);
+    }
+
+    private Vector3 GetUnrotatedPosition(Vector3 pos)
+    {
+        // Get the cell (r, c) where pos is
+        // Need to "un"-rotate the position back (as if the plane had no rotation)
+        Quaternion planeRot = _agent.transform.localRotation;
+        Vector3 unrotatedPos = Quaternion.Inverse(planeRot) * pos;
+        return unrotatedPos;
     }
     #endregion
 

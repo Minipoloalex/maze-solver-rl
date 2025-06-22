@@ -31,7 +31,7 @@ public class BalanceToTargetStrategy : IStrategy
     public void OnEpisodeBegin()
     {
         _platform.rotation = Quaternion.identity;
-        _ballRb.velocity = Vector3.zero;
+        _ballRb.linearVelocity = Vector3.zero;
         _ball.transform.position = _platform.position + new Vector3(0, 0.5f, 0);
 
         if (randomPositionOnBegin)
