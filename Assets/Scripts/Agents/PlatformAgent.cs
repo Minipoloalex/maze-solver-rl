@@ -1,21 +1,25 @@
+// FILE: Assets/Scripts/Agent/PlatformAgent.cs
+
 using UnityEngine;
 using Unity.MLAgents;
-using Unity.MLAgents.Sensors;
 using Unity.MLAgents.Actuators;
-using Random = UnityEngine.Random;
 
 /// <summary>
-/// Generic platform agent parent class (to be inherited by others)
+/// Generic platform agent parent class. Holds common references.
 /// </summary>
 [RequireComponent(typeof(FloorController))]
 public abstract class PlatformAgent : Agent
 {
+    [Header("Agent References")]
     public MazeController controller;
     public Vector3 worldExitPosition;
     public GameObject ball;
     public Transform _ballGridAnchorTransform;
-    protected Rigidbody m_BallRb;
-    protected FloorController floor;
+
+    [HideInInspector]
+    public Rigidbody m_BallRb;
+    [HideInInspector]
+    public FloorController floor;
 
     public override void Initialize()
     {
@@ -25,53 +29,24 @@ public abstract class PlatformAgent : Agent
         }
         floor = GetComponent<FloorController>();
     }
+
     public virtual void Init(GameObject ball, GameObject ballGridAnchor)
     {
         SetBall(ball);
         _ballGridAnchorTransform = ballGridAnchor.transform;
     }
+
     private void SetBall(GameObject b)
     {
         ball = b;
         m_BallRb = ball.GetComponent<Rigidbody>();
     }
-    void FixedUpdate()
-    {
-        if (ball.transform != null && ball.activeInHierarchy && _ballGridAnchorTransform != null)
-        {
-            controller.MoveBallAnchor();
-        }
-        else
-        {
-            Debug.LogError("Agent does not have access to the ball or its anchor of the ball");
-        }
-    }
+
     public override void OnActionReceived(ActionBuffers actionBuffers)
     {
+        // This part is common to all strategies: applying the physical tilt.
         float inputX = actionBuffers.ContinuousActions[0];
         float inputZ = actionBuffers.ContinuousActions[1];
         floor.ApplyTilt(inputX, inputZ);
-
-        // var actionZ = 2f * Mathf.Clamp(actionBuffers.ContinuousActions[0], -1f, 1f);
-        // var actionX = 2f * Mathf.Clamp(actionBuffers.ContinuousActions[1], -1f, 1f);
-
-        // if ((gameObject.transform.rotation.z < 0.25f && actionZ > 0f) ||
-        //     (gameObject.transform.rotation.z > -0.25f && actionZ < 0f))
-        // {
-        //     gameObject.transform.Rotate(new Vector3(0, 0, 1), actionZ);
-        // }
-
-        // if ((gameObject.transform.rotation.x < 0.25f && actionX > 0f) ||
-        //     (gameObject.transform.rotation.x > -0.25f && actionX < 0f))
-        // {
-        //     gameObject.transform.Rotate(new Vector3(1, 0, 0), actionX);
-        // }
-    }
-    public override void Heuristic(in ActionBuffers actionsOut)
-    {
-        // Allows testing the balance platform with the arrow keys
-        var continuousActionsOut = actionsOut.ContinuousActions;
-        continuousActionsOut[0] = Input.GetAxis("Horizontal");
-        continuousActionsOut[1] = Input.GetAxis("Vertical");
     }
 }
