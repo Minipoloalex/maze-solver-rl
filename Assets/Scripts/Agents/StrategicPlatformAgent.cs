@@ -10,7 +10,8 @@ public class StrategicPlatformAgent : PlatformAgent
     // In the Unity Inspector, you can select which strategy to use for this agent.
     public enum StrategyType
     {
-        MazeSolver
+        MazeSolver,
+        Hierarchical
     }
 
     [Header("Strategy Selection")]
@@ -49,12 +50,30 @@ public class StrategicPlatformAgent : PlatformAgent
         strategy.ProcessActions();
     }
 
-    void FixedUpdate()
+     void FixedUpdate()
     {
-        // This is a core agent function, so it lives here.
+        UnityEngine.Debug.Log("StrategicPlatformAgent FixedUpdate called");
+
+        // This is a core agent function to keep the grid sensor anchor updated.
         if (ball.transform != null && ball.activeInHierarchy && _ballGridAnchorTransform != null)
         {
             controller.MoveBallAnchor();
         }
+
+        if (strategy is HierarchicalStrategy hierarchicalStrategy)
+        {
+            // 1. Get the required tilt action from the PID controller
+            Vector2 tilt = hierarchicalStrategy.GetTiltControl();
+
+            // 2. Apply that tilt to the floor's Rigidbody
+            floor.ApplyTilt(tilt.x, tilt.y);
+
+            // 3. Manually call ProcessActions to update the waypoint logic (state machine)
+            //    We do this here because we are not using the standard OnActionReceived loop.
+            strategy.ProcessActions();
+
+            UnityEngine.Debug.Log($"StrategicPlatformAgent FixedUpdate: Applied tilt ({tilt.x}, {tilt.y})");
+        }
     }
+    
 }
