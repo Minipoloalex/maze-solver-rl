@@ -99,8 +99,8 @@ public class MazeSolverAgent : PlatformAgent
         // Values from the ball: relative position and linear velocity
         Vector2 ballPositionShift = GetShiftRelativeToCenterOfCell(ball.transform.localPosition);
         sensor.AddObservation(ballPositionShift);   // 2d
-
         // sensor.AddObservation(ball.transform.localPosition); // 3d
+
         sensor.AddObservation(m_BallRb.linearVelocity); // 3d
 
         // relative position to the target (2d: x, z)
@@ -109,7 +109,10 @@ public class MazeSolverAgent : PlatformAgent
         // sensor.AddObservation(new Vector2(posDiff.x, posDiff.z));
 
         Vector2Int posIdDiff = GetBallPositionIdDifferenceToExit();
-        sensor.AddObservation(posIdDiff);
+        sensor.AddObservation(posIdDiff);   // 2d
+
+        // Use the distance to the exit (with path finding) as an observation
+        sensor.AddObservation(GetDistanceToExitBFS());  // 1d
     }
     public override void OnActionReceived(ActionBuffers actionBuffers)
     {
@@ -149,6 +152,12 @@ public class MazeSolverAgent : PlatformAgent
                 EndEpisode();
                 return;
             }
+            if (normalizedDistanceToExitBfs < 0)
+            {
+                SetReward(-1f);
+                EndEpisode();
+                return;
+            }
             // Should be negative to make the agent want to end as fast as possible
             AddReward(RewardBasedOnBFS(normalizedDistanceToExitBfs));
         }
@@ -182,17 +191,22 @@ public class MazeSolverAgent : PlatformAgent
         Vector2Int cell = controller.spawner.GetPosIdFromWorldRelativePosition(unrotatedPos);
         return cell;
     }
-    private float GetNormalizedDistanceToExitBFS()
+    private int GetDistanceToExitBFS()
     {
-        int maxDistance = controller.grid.RowCount * 2 + controller.grid.ColCount * 2;
-
         // Get the cell (r, c) where the ball is
         // Need to "un"-rotate the ball back (as if the plane had no rotation)
         Vector2Int ballCell = GetCellId(ball.transform.localPosition);
 
         int distance = bfsResult.GetDistanceTo(ballCell);
+        return distance;
+    }
+    private float GetNormalizedDistanceToExitBFS()
+    {
+        int maxDistance = controller.grid.RowCount * 2 + controller.grid.ColCount * 2;
+        int distance = GetDistanceToExitBFS();
         if (distance == -1)
         {
+            Vector2Int ballCell = GetCellId(ball.transform.localPosition);
             UnityEngine.Debug.LogError($"Distance from BFS was -1 (not visited), position: {ballCell}");
         }
         float normalizedDistance = (float)distance / maxDistance;
