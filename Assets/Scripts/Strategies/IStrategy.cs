@@ -25,9 +25,4 @@ public interface IStrategy
     /// This is where the core logic of the algorithm is implemented.
     /// </summary>
     void ProcessActions();
-
-    /// <summary>
-    /// Defines the behavior when controlling the agent with heuristics (e.g., keyboard).
-    /// </summary>
-    void DecideHeuristicActions(in ActionBuffers actionsOut);
 }

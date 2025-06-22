@@ -49,11 +49,6 @@ public class StrategicPlatformAgent : PlatformAgent
         strategy.ProcessActions();
     }
 
-    public override void Heuristic(in ActionBuffers actionsOut)
-    {
-        strategy.DecideHeuristicActions(in actionsOut);
-    }
-
     void FixedUpdate()
     {
         // This is a core agent function, so it lives here.

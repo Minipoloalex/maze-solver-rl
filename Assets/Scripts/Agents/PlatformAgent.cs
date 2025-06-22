@@ -42,6 +42,12 @@ public abstract class PlatformAgent : Agent
         m_BallRb = ball.GetComponent<Rigidbody>();
     }
 
+    public override void Heuristic(in ActionBuffers actionsOut)
+    {
+        var continuousActionsOut = actionsOut.ContinuousActions;
+        continuousActionsOut[0] = Input.GetAxis("Horizontal");
+        continuousActionsOut[1] = Input.GetAxis("Vertical");
+    }
     public override void OnActionReceived(ActionBuffers actionBuffers)
     {
         // This part is common to all strategies: applying the physical tilt.
