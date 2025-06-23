@@ -105,7 +105,7 @@ public class MazeSolverStrategy : IStrategy
         int distance = GetDistanceToExitBFS();
         if (distance == -1)
         {
-            Vector2Int ballCell = GetCellId(ball.transform.localPosition);
+            Vector2Int ballCell = GetCellId(_agent.ball.transform.localPosition);
             UnityEngine.Debug.LogError($"Distance from BFS was -1 (not visited), position: {ballCell}");
         }
         return (float)distance / maxDistance;
