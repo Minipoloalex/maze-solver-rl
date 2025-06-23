@@ -11,9 +11,6 @@ public static class StrategyFactory
             case StrategicPlatformAgent.StrategyType.MazeSolver:
                 return new MazeSolverStrategy();
 
-            case StrategicPlatformAgent.StrategyType.Hierarchical: 
-                return new HierarchicalStrategy();
-
             default:
                 Debug.LogError($"Unknown strategy type: {type}");
                 return null;
