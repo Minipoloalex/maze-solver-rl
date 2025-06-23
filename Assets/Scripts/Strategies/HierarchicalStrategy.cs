@@ -13,8 +13,14 @@ public class HierarchicalStrategy : IStrategy
     public float waypointReward = 0.2f;
     [Tooltip("Final reward for reaching the exit.")]
     public float finalGoalReward = 10.0f;
-    [Tooltip("Penalty for the ball falling off the maze.")]
-    public float fallOffPenalty = -1.0f;
+
+    [Header("Time Penalty Settings")]
+    [Tooltip("The total negative reward budget for time, applied if the agent uses its full time budget.")]
+    public float totalTimePenaltyBudget = -1.0f;
+
+    [Tooltip("The number of steps the agent is 'allowed' per waypoint before the time penalty becomes significant. Higher values are more forgiving.")]
+    public float stepsAllowedPerWaypoint = 75f;
+
 
     private StrategicPlatformAgent _agent;
     private IPlanner _planner;
@@ -89,14 +95,22 @@ public class HierarchicalStrategy : IStrategy
 
     public void ProcessActions()
     {
-        // --- 1. Time Penalty ---
-
-        // Apply a small penalty every step to encourage the agent to solve the maze FASTER.
-        // We use _agent.MaxStep so the penalty automatically adjusts if you change it in the editor.
-        if (_agent.MaxStep > 0)
+        // --- 1. DYNAMIC Time Penalty ---
+        if (_currentPlan != null && _currentPlan.Count > 0)
         {
-            _agent.AddReward(-1.0f / _agent.MaxStep);
+            // Calculate a total "allowed" number of steps based on the plan length.
+            float totalAllowedSteps = _currentPlan.Count * stepsAllowedPerWaypoint;
+
+            // Ensure we don't divide by zero and that the budget is reasonable.
+            if (totalAllowedSteps > 1)
+            {
+                // The penalty is the total budget distributed over the allowed steps.
+                float dynamicPenalty = totalTimePenaltyBudget / totalAllowedSteps;
+                _agent.AddReward(dynamicPenalty);
+                Debug.Log($"Dynamic Time Penalty Applied: {dynamicPenalty} per step. Total allowed steps: {totalAllowedSteps}");
+            }
         }
+
 
         // --- 2. Reward Shaping ---
         // Give a small reward for moving the ball in the direction of the current target waypoint.
