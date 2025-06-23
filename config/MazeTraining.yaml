@@ -1,23 +1,26 @@
+env_settings:
+  num_areas: 8
 behaviors:
   MazeBBT:
     trainer_type: ppo               # SAC also works; PPO is default & stable
     hyperparameters:
       learning_rate: 3e-4
-      batch_size: 1024
-      buffer_size: 20480
+      batch_size: 4096
+      buffer_size: 409600
       beta: 5e-4
       epsilon: 0.2
       lambd: 0.95
       num_epoch: 3
     network_settings:
-      hidden_units: 128
+      hidden_units: 256
       num_layers: 2
-      memory:
-        sequence_length: 64         # gives the agent short-term memory
+      memory:   # LSTM
+        sequence_length: 128         # gives the agent short-term memory
         memory_size: 256
       normalize: true
-      vis_encode_type: fully_connected
-      # vis_encode_type: simple
+      # vis_encode_type: fully_connected  # for processing grid observation
+      vis_encode_type: simple
+
       # vibe-coded in: does it exist?
       # sensor_settings:
       #   - name: GridSensor  # name set in Unity editor
@@ -26,7 +29,7 @@ behaviors:
       extrinsic:
         gamma: 0.99
         strength: 1.0
-    max_steps: 10e6                 # ~2-4 h on a modern GPU with 16 envs
+    max_steps: 50e6                 # ~2-4 h on a modern GPU with 16 envs
     time_horizon: 128
 
 environment_parameters:
@@ -36,4 +39,4 @@ environment_parameters:
 
   difficulty:               # later used for curriculum
     sampler_type: uniform
-    sampler_parameters: {min_value: 0.1, max_value: 1.0}
+    sampler_parameters: {min_value: 0.1, max_value: 0.1}

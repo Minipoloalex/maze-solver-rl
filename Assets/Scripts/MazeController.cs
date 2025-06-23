@@ -6,6 +6,8 @@ public class MazeController : MonoBehaviour
     [Header("Maze Parameters")]
     public bool generateRandomMaze = false;
     public bool allowRuntimeModifications = true; // TODO: in case clicker stuff is slow, do not spawn it (not implemented yet)
+    [Tooltip("Adds a border of walls around the maze. Useful for Grid Sensors. Should depend on the size of the grid sensors")]
+    public int mazePadding = 1;
 
     [Header("Maze Random Generation Parameters")]
     [Tooltip("Whether to generate a random maze or use the given seed")]
@@ -34,7 +36,9 @@ public class MazeController : MonoBehaviour
     private GameObject ball;
     private GameObject ballGridAnchor;
     private GameObject exitPad;
-    
+
+    private Rigidbody ballRb; // for resetting ball velocity
+
     public Vector2Int Generate()
     {
         Vector2Int ballPosId;
@@ -61,6 +65,12 @@ public class MazeController : MonoBehaviour
         {
             AsciiMazeLoader mazeLoader = gameObject.GetComponent<AsciiMazeLoader>();
             this.grid = mazeLoader.ReadGrid(out ballPosId, out exitPosId);
+        }
+
+        // Add padding to the generated grid if required
+        if (this.mazePadding > 0)
+        {
+            this.grid = MazePadding.Pad(this.grid, this.mazePadding, ref ballPosId, ref exitPosId);
         }
         return ballPosId;
     }
@@ -153,6 +163,7 @@ public class MazeController : MonoBehaviour
             Destroy(this.exitPad);
             this.agent.transform.localRotation = Quaternion.identity;
         }
+        ResetBallVelocity();
 
         // nullify explicitly (though I think it makes no difference)
         this.wallsOn = null;
@@ -165,6 +176,13 @@ public class MazeController : MonoBehaviour
     public void Start()
     {
         GenerateAndSpawnNewMaze();
+        ballRb = ball.GetComponent<Rigidbody>();
+    }
+    public void ResetBallVelocity()
+    {
+        // Reset the ball's velocity and angular velocity
+        ballRb.linearVelocity = Vector3.zero;
+        ballRb.angularVelocity = Vector3.zero;
     }
     public void ResetMaze()
     {

@@ -50,6 +50,7 @@ public class MazeSpawner : MonoBehaviour
     {
         var container = new GameObject("Walls");
         container.transform.SetParent(parent);
+        container.transform.position = parent.transform.position;
         return container;
     }
 
@@ -57,6 +58,7 @@ public class MazeSpawner : MonoBehaviour
     {
         var container = new GameObject("FloorTriggers");
         container.transform.SetParent(parent);
+        container.transform.position = parent.transform.position;
         return container;
     }
 
@@ -120,7 +122,7 @@ public class MazeSpawner : MonoBehaviour
     //     ballGridAnchor.transform.localScale = Vector3.Scale(ballGridAnchor.transform.localScale, ballScale);
     //     return ballGridAnchor;
     // }
-    public Vector3 GetWorldRelativePosition(Vector2Int posId, float height=0.5f)
+    public Vector3 GetWorldRelativePosition(Vector2Int posId, float height = 0.5f)
     {
         // x are columns, z are rows
         float zShift = ((gridSize.y - 1) / 2.0f) * wallScale.z;
@@ -132,5 +134,33 @@ public class MazeSpawner : MonoBehaviour
         Vector3 pos = new Vector3(c - xShift, height, (gridSize.y - 1 - r) - zShift);
 
         return pos;
+    }
+    /// <summary>
+    /// Converts a local position relative to the maze's parent transform back to a grid coordinate (posId).
+    /// This is the inverse of GetWorldRelativePosition.
+    /// Very important: it requires that the position is given for a non-rotated plane.
+    /// You may need to unrotate the positions using Quaternion.inverse(planeRot) * position
+    /// </summary>
+    /// <param name="pos">The local position within the maze's parent transform.</param>
+    /// <returns>The corresponding grid cell coordinate (row, col).</returns>
+    public Vector2Int GetPosIdFromWorldRelativePosition(Vector3 pos)
+    {
+        // Calculate the same shifts used when creating the positions
+        float zShift = ((gridSize.y - 1) / 2.0f) * wallScale.z;
+        float xShift = ((gridSize.x - 1) / 2.0f) * wallScale.x;
+
+        // --- Inverse Calculations ---
+
+        // Solve for 'c' (column) from the x-coordinate
+        // Original: pos.x = c - xShift
+        // Inverse: c = pos.x + xShift
+        int c = Mathf.RoundToInt(pos.x + xShift);
+
+        // Solve for 'r' (row) from the z-coordinate
+        // Original: pos.z = (gridSize.y - 1 - r) - zShift
+        // Inverse: r = gridSize.y - 1 - (pos.z + zShift)
+        int r = Mathf.RoundToInt(gridSize.y - 1 - (pos.z + zShift));
+
+        return new Vector2Int(r, c);
     }
 }

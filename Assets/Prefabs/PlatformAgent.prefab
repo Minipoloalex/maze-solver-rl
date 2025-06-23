@@ -12,8 +12,8 @@ GameObject:
   - component: {fileID: 5457115276096519913}
   - component: {fileID: 8644549915309980052}
   - component: {fileID: 8649420691284167125}
-  - component: {fileID: 3377298606311444628}
   - component: {fileID: 623105360836064306}
+  - component: {fileID: 3110986455032538540}
   m_Layer: 0
   m_Name: PlatformAgent
   m_TagString: Untagged
@@ -44,10 +44,10 @@ Rigidbody:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1183898981796164770}
-  serializedVersion: 4
+  serializedVersion: 5
   m_Mass: 1
-  m_Drag: 0
-  m_AngularDrag: 0.05
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
   m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
@@ -78,7 +78,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_BrainParameters:
     VectorObservationSize: 12
-    NumStackedVectorObservations: 1
+    NumStackedVectorObservations: 3
     m_ActionSpec:
       m_NumContinuousActions: 2
       BranchSizes: 
@@ -86,7 +86,7 @@ MonoBehaviour:
     VectorActionDescriptions: []
     VectorActionSpaceType: 1
     hasUpgradedBrainParametersWithActionSpec: 1
-  m_Model: {fileID: 5022602860645237092, guid: f2b0435c3e1b8bcfabe45833b79bbdee, type: 3}
+  m_Model: {fileID: 5022602860645237092, guid: 0e371b32029e8220fac17ab2d82bb5d3, type: 3}
   m_InferenceDevice: 2
   m_BehaviorType: 0
   m_BehaviorName: MazeBBT
@@ -110,30 +110,6 @@ MonoBehaviour:
   DecisionPeriod: 5
   DecisionStep: 0
   TakeActionsBetweenDecisions: 1
---- !u!114 &3377298606311444628
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1183898981796164770}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ce1002f67ead4215fa4475c6f2af19b9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  agentParameters:
-    maxStep: 0
-  hasUpgradedFromAgentParameters: 1
-  MaxStep: 0
-  controller: {fileID: 0}
-  worldExitPosition: {x: 0, y: 0, z: 0}
-  ball: {fileID: 0}
-  _ballGridAnchorTransform: {fileID: 0}
-  targetPosition: {x: 0, y: 0, z: 0}
-  goalReachedDistanceThreshold: 0.5
-  progressRewardScale: 0.1
-  distanceMagnitudeRewardScale: 0.1
 --- !u!114 &623105360836064306
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -148,6 +124,36 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxTiltDeg: 36
   tiltStepDeg: 0.25
+--- !u!114 &3110986455032538540
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1183898981796164770}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3969f0303268ed36ebff7f49c16a8e54, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  agentParameters:
+    maxStep: 0
+  hasUpgradedFromAgentParameters: 1
+  MaxStep: 5000
+  controller: {fileID: 0}
+  worldExitPosition: {x: 0, y: 0, z: 0}
+  ball: {fileID: 0}
+  _ballGridAnchorTransform: {fileID: 0}
+  m_BallRb: {fileID: 0}
+  floor: {fileID: 0}
+  selectedStrategy: 0
+  strategy:
+    rid: -2
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
 --- !u!1001 &3407481186748126993
 PrefabInstance:
   m_ObjectHideFlags: 0

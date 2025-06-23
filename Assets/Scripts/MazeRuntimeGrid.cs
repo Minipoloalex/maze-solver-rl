@@ -3,6 +3,7 @@ using UnityEngine;
 
 /// <summary>
 /// Stores the maze grid. Basically, which cells currently contain a wall.
+/// By default, creates empty cells (no walls).
 /// </summary>
 public class MazeRuntimeGrid
 {
@@ -80,4 +81,6 @@ public class MazeRuntimeGrid
         get => maze[index];
     }
     public int Length => maze.Length;
+    public int RowCount => maze.Length;
+    public int ColCount => maze[0].Length; // Assumes a non-empty grid
 }

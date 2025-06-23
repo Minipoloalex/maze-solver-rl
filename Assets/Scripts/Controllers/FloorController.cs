@@ -11,7 +11,7 @@ public class FloorController : MonoBehaviour
     public float maxTiltDeg = 14f;
 
     [Header("Tilt speed (degrees per FixedUpdate)")]
-    public float tiltStepDeg = 2f;
+    public float tiltStepDeg = 0.5f;
 
     private Rigidbody rb;
     private Quaternion initialRotation;
