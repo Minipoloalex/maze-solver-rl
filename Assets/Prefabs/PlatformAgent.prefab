@@ -146,7 +146,7 @@ MonoBehaviour:
   _ballGridAnchorTransform: {fileID: 0}
   m_BallRb: {fileID: 0}
   floor: {fileID: 0}
-  selectedStrategy: 0
+  selectedStrategy: 1
   strategy:
     rid: -2
   references:

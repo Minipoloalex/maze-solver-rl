@@ -10,7 +10,8 @@ public class StrategicPlatformAgent : PlatformAgent
     // In the Unity Inspector, you can select which strategy to use for this agent.
     public enum StrategyType
     {
-        MazeSolver
+        MazeSolver,
+        Hierarchical
     }
 
     [Header("Strategy Selection")]
