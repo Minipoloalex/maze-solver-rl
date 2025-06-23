@@ -47,6 +47,7 @@ public class HierarchicalStrategy : IStrategy
         // 4. Set the first waypoint as the initial goal
         if (_currentPlan != null && _currentPlan.Count > 0)
         {
+            _agent.controller.SpawnWaypoints(_currentPlan);
             _currentWaypointIndex = 0;
             // We start by targeting the second node in the path (index 1), since index 0 is the start position.
             if (_currentPlan.Count > 1)
@@ -84,67 +85,81 @@ public class HierarchicalStrategy : IStrategy
         sensor.AddObservation(_agent.transform.localRotation);
     }
 
-    // In HierarchicalStrategy.cs, replace the existing ProcessActions method with this one.
+    // In Assets/Scripts/Strategies/HierarchicalStrategy.cs
 
-// In HierarchicalStrategy.cs, replace the existing ProcessActions method with this one.
+    public void ProcessActions()
+    {
+        // --- 1. Time Penalty ---
 
-        public void ProcessActions()
+        // Apply a small penalty every step to encourage the agent to solve the maze FASTER.
+        // We use _agent.MaxStep so the penalty automatically adjusts if you change it in the editor.
+        if (_agent.MaxStep > 0)
         {
-            // --- Termination & Directional Reward (unchanged) ---
-            Vector3 localBallPos = _agent.ball.transform.localPosition;
-            if (localBallPos.y < -10f)
-            {
-                _agent.SetReward(fallOffPenalty);
-                _agent.EndEpisode();
-                return;
-            }
-            Vector3 targetWaypointWorldPos = GetCurrentWaypointWorldPosition();
-            Vector3 directionToTarget = (targetWaypointWorldPos - _agent.ball.transform.position).normalized;
-            Vector3 ballVelocity = _agent.m_BallRb.linearVelocity;
-            float directionalReward = Vector3.Dot(ballVelocity.normalized, directionToTarget);
-            _agent.AddReward(0.01f * directionalReward);
+            _agent.AddReward(-1.0f / _agent.MaxStep);
+        }
 
-            // --- NEW: Smarter Waypoint Checking ---
-            // Instead of only checking the current target, we loop through all future waypoints.
-            // This allows the agent to "skip" waypoints if it gets ahead of its plan.
-            for (int i = _currentWaypointIndex; i < _currentPlan.Count; i++)
-            {
-                Vector2Int waypointGridPos = _currentPlan[i];
-                Vector3 waypointWorldPos = _agent.controller.spawner.GetWorldRelativePosition(waypointGridPos);
-                float distanceToWaypoint = Vector3.Distance(_agent.ball.transform.position, waypointWorldPos);
+        // --- 2. Reward Shaping ---
+        // Give a small reward for moving the ball in the direction of the current target waypoint.
+        Vector3 targetWaypointWorldPos = GetCurrentWaypointWorldPosition();
+        Vector3 directionToTarget = (targetWaypointWorldPos - _agent.ball.transform.position).normalized;
+        Vector3 ballVelocity = _agent.m_BallRb.linearVelocity;
+        float directionalReward = Vector3.Dot(ballVelocity.normalized, directionToTarget);
+        _agent.AddReward(0.01f * directionalReward);
 
-                if (distanceToWaypoint < waypointReachedThreshold)
+
+        // --- 3. Waypoint Progression and Rewards ---
+        // Loop through all waypoints from the current one onwards.
+        // This allows the agent to "skip" waypoints if it moves fast.
+        for (int i = _currentWaypointIndex; i < _currentPlan.Count; i++)
+        {
+            Vector2Int waypointGridPos = _currentPlan[i];
+            Vector3 waypointWorldPos = _agent.controller.spawner.GetWorldRelativePosition(waypointGridPos);
+            float distanceToWaypoint = Vector3.Distance(_agent.ball.transform.position, waypointWorldPos);
+
+            // Check if the agent has reached waypoint 'i'
+            if (distanceToWaypoint < waypointReachedThreshold)
+            {
+                // Check if this was the FINAL waypoint in the plan
+                if (i == _currentPlan.Count - 1)
                 {
-                    // The agent has reached waypoint 'i'.
-                    
-                    // Check if this was the final waypoint in the entire plan.
-                    if (i == _currentPlan.Count - 1)
-                    {
-                        Debug.Log("Success! Final goal reached.");
-                        _agent.SetReward(finalGoalReward);
-                        _agent.EndEpisode();
-                        return; // Exit the method immediately since the episode is over.
-                    }
-                    else
-                    {
-                        // This was an intermediate waypoint.
-                        // We update the index to the one AFTER the one we just reached.
-                        int newWaypointIndex = i + 1;
-                        
-                        // Optional: Give a reward for each waypoint skipped.
-                        int waypointsSkipped = newWaypointIndex - _currentWaypointIndex;
-                        _agent.AddReward(waypointsSkipped * waypointReward);
+                    // Remove the final waypoint from the scene
+                    _agent.controller.RemoveWaypoint(_currentPlan[i]);
 
-                        _currentWaypointIndex = newWaypointIndex;
-                        Debug.Log($"Waypoint {i} reached! New target is waypoint {_currentWaypointIndex}.");
-                        
-                        // We've found the closest future waypoint, no need to check further this frame.
-                        // We'll continue the loop from the new index on the next frame.
-                        break; 
+                    Debug.Log("Success! Final goal reached.");
+                    _agent.SetReward(finalGoalReward);
+                    _agent.EndEpisode();
+                    return; // Episode is over, exit the method.
+                }
+                // This is an intermediate waypoint
+                else
+                {
+                    // ** CRITICAL LOGIC FOR VISUALS **
+                    // Loop from the old waypoint index up to the one we just reached (i)
+                    // and remove each of them visually. This handles skipped waypoints correctly.
+                    for (int j = _currentWaypointIndex; j <= i; j++)
+                    {
+                        _agent.controller.RemoveWaypoint(_currentPlan[j]);
                     }
+
+                    // Update the agent's target to the next waypoint in the plan
+                    int newWaypointIndex = i + 1;
+                    if (newWaypointIndex >= _currentPlan.Count)
+                    {
+                        Debug.LogError("New waypoint index is out of bounds! Resetting to 0.");
+                        newWaypointIndex = 0; // Reset to the first waypoint if out of bounds
+                    }
+
+                    // Set the new target index
+                    _currentWaypointIndex = newWaypointIndex;
+                    Debug.Log($"Waypoint {i} reached! New target is waypoint {_currentWaypointIndex}.");
+
+                    // We've found the closest future waypoint the ball has reached.
+                    // Break the loop and wait for the next OnActionReceived call.
+                    break;
                 }
             }
         }
+    }
     private Vector3 GetCurrentWaypointWorldPosition()
     {
         if (_currentPlan == null || _currentWaypointIndex >= _currentPlan.Count)

@@ -32,6 +32,8 @@ public class MazeController : MonoBehaviour
     [HideInInspector] public GameObject wallsOn;
     [HideInInspector] public GameObject wallsOff;
     private GameObject _waypointsContainer; 
+    private Dictionary<Vector2Int, GameObject> _waypointObjects;
+
     private GameObject agent;
     private GameObject floor;
     private GameObject ball;
@@ -134,6 +136,20 @@ public class MazeController : MonoBehaviour
             spawner.SpawnWaypointMarker(_waypointsContainer.transform, waypoint);
         }
     }
+
+     public void RemoveWaypoint(Vector2Int waypointPos)
+    {
+        if (_waypointObjects != null && _waypointObjects.ContainsKey(waypointPos))
+        {
+            GameObject waypointObj = _waypointObjects[waypointPos];
+            if (waypointObj != null)
+            {
+                Destroy(waypointObj);
+            }
+            _waypointObjects.Remove(waypointPos);
+        }
+    }
+
     public GameObject SpawnWaypointsContainer(Transform parent)
     {
         var container = new GameObject("Waypoints");
@@ -181,6 +197,7 @@ public class MazeController : MonoBehaviour
             Destroy(this.wallsOff);
             Destroy(this.floor);
             Destroy(this.exitPad);
+            Destroy(this._waypointsContainer);
             this.agent.transform.localRotation = Quaternion.identity;
         }
 
