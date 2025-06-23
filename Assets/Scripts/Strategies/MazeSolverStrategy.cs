@@ -67,6 +67,7 @@ public class MazeSolverStrategy : IStrategy
         if (localBallPos.y < -20f || Mathf.Abs(localBallPos.x) > 50f || Mathf.Abs(localBallPos.z) > 50f)
         {
             _agent.SetReward(-1.0f);
+            _agent.RecordSuccess();
             _agent.EndEpisode();
             return;
         }
@@ -76,17 +77,23 @@ public class MazeSolverStrategy : IStrategy
         {
             UnityEngine.Debug.Log("Goal Reached!");
             _agent.SetReward(10.0f);
+            _agent.RecordSuccess();
             _agent.EndEpisode();
             return;
         }
         if (normalizedDistanceToExitBfs < 0)
         {
             _agent.SetReward(-1f);
+            _agent.RecordFailure();
             _agent.EndEpisode();
             return;
         }
         // Small negative reward based on BFS distance to encourage pathfinding and speed
         _agent.AddReward(-normalizedDistanceToExitBfs * maxRewardBfs);
+        if (_agent.MaxStep > 0 && _agent.StepCount >= _agent.MaxStep)
+        {
+            _agent.RecordTimeOut();
+        }
     }
 
     #region Helper Methods
