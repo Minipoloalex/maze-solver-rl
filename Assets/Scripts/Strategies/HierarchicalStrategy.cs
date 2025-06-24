@@ -111,12 +111,24 @@ public class HierarchicalStrategy : IStrategy
 
         // --- 2. Reward Shaping ---
         // Give a small reward for moving the ball in the direction of the current target waypoint.
-        Vector3 directionToTarget = (GetCurrentWaypointWorldPosition() - _agent.ball.transform.localPosition).normalized;
-        //Debug print directionToTarget;
-        UnityEngine.Debug.Log($"Current world pos: {GetCurrentWaypointWorldPosition()}, Ball pos: {_agent.ball.transform.localPosition}, Direction to target: {directionToTarget}");
+        Vector3 waypointWorldPos = GetCurrentWaypointWorldPosition();
+        Vector3 ballWorldPos = _agent.ball.transform.localPosition;
+
+        // Create 2D versions of the positions for accurate direction calculation
+        Vector3 waypointPos2D = new Vector3(waypointWorldPos.x, 0, waypointWorldPos.z);
+        Vector3 ballPos2D = new Vector3(ballWorldPos.x, 0, ballWorldPos.z);
+        
+        // The direction is now purely horizontal (on the X-Z plane)
+        Vector3 directionToTarget = (waypointPos2D - ballPos2D).normalized;
+        
+        // The original debug log, now using the corrected values for clarity
+        UnityEngine.Debug.Log($"Current waipoint pos: {waypointWorldPos}, Ball pos: {ballWorldPos}, Direction to target (2D): {directionToTarget}");
 
         Vector3 ballVelocity = _agent.m_BallRb.linearVelocity;
-        float directionalReward = Vector3.Dot(ballVelocity.normalized, directionToTarget);
+        // We only care about horizontal velocity for this reward
+        Vector3 ballVelocity2D = new Vector3(ballVelocity.x, 0, ballVelocity.z);
+
+        float directionalReward = Vector3.Dot(ballVelocity2D.normalized, directionToTarget);
         _agent.AddReward(0.01f * directionalReward);
 
         // --- 3. Waypoint Progression and Rewards ---
@@ -125,8 +137,13 @@ public class HierarchicalStrategy : IStrategy
         for (int i = _currentWaypointIndex; i < _currentPlan.Count; i++)
         {
             Vector2Int waypointGridPos = _currentPlan[i];
-            Vector3 waypointWorldPos = _agent.controller.spawner.GetWorldRelativePosition(waypointGridPos);
-            float distanceToWaypoint = Vector3.Distance(_agent.ball.transform.localPosition, waypointWorldPos);
+            Vector3 currentWaypointWorldPos = _agent.controller.spawner.GetWorldRelativePosition(waypointGridPos);
+            
+            // Calculate distance on the X-Z plane only
+            float distanceToWaypoint = Vector2.Distance(
+                new Vector2(ballWorldPos.x, ballWorldPos.z), 
+                new Vector2(currentWaypointWorldPos.x, currentWaypointWorldPos.z)
+            );
 
             // Check if the agent has reached waypoint 'i'
             if (distanceToWaypoint < waypointReachedThreshold)
