@@ -218,7 +218,7 @@ Transform:
   m_GameObject: {fileID: 121279184}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.06377, y: 0.3, z: -0.02153}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -601,7 +601,7 @@ PrefabInstance:
       objectReference: {fileID: 242922388}
     - target: {fileID: 1183898981796164770, guid: f48f6ac1a6d4fb9fcbbdf50c9c142d48, type: 3}
       propertyPath: m_Name
-      value: BalancePlatformAgent
+      value: BalanceAgent
       objectReference: {fileID: 0}
     - target: {fileID: 6287002169616056346, guid: f48f6ac1a6d4fb9fcbbdf50c9c142d48, type: 3}
       propertyPath: m_LocalPosition.x

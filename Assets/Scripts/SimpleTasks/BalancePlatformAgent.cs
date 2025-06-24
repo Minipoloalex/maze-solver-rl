@@ -24,6 +24,7 @@ public class BalancePlatformAgent : PlatformAgent
             SetReward(-1f);
             RecordFailure();
             EndEpisode();
+            return;
         }
         else
         {
