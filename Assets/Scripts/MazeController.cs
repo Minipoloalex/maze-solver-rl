@@ -40,6 +40,8 @@ public class MazeController : MonoBehaviour
     private GameObject ballGridAnchor;
     private GameObject exitPad;
 
+    private Rigidbody ballRb; // for resetting ball velocity
+
     public Vector2Int Generate()
     {
         Vector2Int ballPosId;
@@ -200,6 +202,7 @@ public class MazeController : MonoBehaviour
             Destroy(this._waypointsContainer);
             this.agent.transform.localRotation = Quaternion.identity;
         }
+        ResetBallVelocity();
 
         // nullify explicitly (though I think it makes no difference)
         this.wallsOn = null;
@@ -212,6 +215,13 @@ public class MazeController : MonoBehaviour
     public void Start()
     {
         GenerateAndSpawnNewMaze();
+        ballRb = ball.GetComponent<Rigidbody>();
+    }
+    public void ResetBallVelocity()
+    {
+        // Reset the ball's velocity and angular velocity
+        ballRb.linearVelocity = Vector3.zero;
+        ballRb.angularVelocity = Vector3.zero;
     }
     public void ResetMaze()
     {

@@ -29,7 +29,7 @@ behaviors:
       extrinsic:
         gamma: 0.99
         strength: 1.0
-    max_steps: 20e6                 # ~2-4 h on a modern GPU with 16 envs
+    max_steps: 50e6                 # ~2-4 h on a modern GPU with 16 envs
     time_horizon: 128
   HierarchicalMazeSolver:
     trainer_type: ppo
