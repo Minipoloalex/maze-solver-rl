@@ -24,8 +24,6 @@ public class HierarchicalStrategy : IStrategy
 
     private StrategicPlatformAgent _agent;
     private IPlanner _planner;
-    
-    // State for the current plan
     private List<Vector2Int> _currentPlan;
     private int _currentWaypointIndex;
 
@@ -79,7 +77,7 @@ public class HierarchicalStrategy : IStrategy
         Vector3 targetWaypointWorldPos = GetCurrentWaypointWorldPosition();
         
         // 1. Vector from ball to target waypoint (3 observations)
-        Vector3 toTarget = targetWaypointWorldPos - _agent.ball.transform.position;
+        Vector3 toTarget = targetWaypointWorldPos - _agent.ball.transform.localPosition;
         sensor.AddObservation(toTarget);
 
         // 2. Ball's linear velocity (3 observations)
@@ -107,19 +105,19 @@ public class HierarchicalStrategy : IStrategy
                 // The penalty is the total budget distributed over the allowed steps.
                 float dynamicPenalty = totalTimePenaltyBudget / totalAllowedSteps;
                 _agent.AddReward(dynamicPenalty);
-                Debug.Log($"Dynamic Time Penalty Applied: {dynamicPenalty} per step. Total allowed steps: {totalAllowedSteps}");
+                //Debug.Log($"Dynamic Time Penalty Applied: {dynamicPenalty} per step. Total allowed steps: {totalAllowedSteps}");
             }
         }
 
-
         // --- 2. Reward Shaping ---
         // Give a small reward for moving the ball in the direction of the current target waypoint.
-        Vector3 targetWaypointWorldPos = GetCurrentWaypointWorldPosition();
-        Vector3 directionToTarget = (targetWaypointWorldPos - _agent.ball.transform.position).normalized;
+        Vector3 directionToTarget = (GetCurrentWaypointWorldPosition() - _agent.ball.transform.localPosition).normalized;
+        //Debug print directionToTarget;
+        UnityEngine.Debug.Log($"Current world pos: {GetCurrentWaypointWorldPosition()}, Ball pos: {_agent.ball.transform.localPosition}, Direction to target: {directionToTarget}");
+
         Vector3 ballVelocity = _agent.m_BallRb.linearVelocity;
         float directionalReward = Vector3.Dot(ballVelocity.normalized, directionToTarget);
         _agent.AddReward(0.01f * directionalReward);
-
 
         // --- 3. Waypoint Progression and Rewards ---
         // Loop through all waypoints from the current one onwards.
@@ -128,7 +126,7 @@ public class HierarchicalStrategy : IStrategy
         {
             Vector2Int waypointGridPos = _currentPlan[i];
             Vector3 waypointWorldPos = _agent.controller.spawner.GetWorldRelativePosition(waypointGridPos);
-            float distanceToWaypoint = Vector3.Distance(_agent.ball.transform.position, waypointWorldPos);
+            float distanceToWaypoint = Vector3.Distance(_agent.ball.transform.localPosition, waypointWorldPos);
 
             // Check if the agent has reached waypoint 'i'
             if (distanceToWaypoint < waypointReachedThreshold)
@@ -140,21 +138,13 @@ public class HierarchicalStrategy : IStrategy
                     _agent.controller.RemoveWaypoint(_currentPlan[i]);
 
                     Debug.Log("Success! Final goal reached.");
-                    _agent.SetReward(finalGoalReward);
+                    _agent.AddReward(finalGoalReward);
                     _agent.EndEpisode();
                     return; // Episode is over, exit the method.
                 }
                 // This is an intermediate waypoint
                 else
                 {
-                    // ** CRITICAL LOGIC FOR VISUALS **
-                    // Loop from the old waypoint index up to the one we just reached (i)
-                    // and remove each of them visually. This handles skipped waypoints correctly.
-                    for (int j = _currentWaypointIndex; j <= i; j++)
-                    {
-                        _agent.controller.RemoveWaypoint(_currentPlan[j]);
-                    }
-
                     // Update the agent's target to the next waypoint in the plan
                     int newWaypointIndex = i + 1;
                     if (newWaypointIndex >= _currentPlan.Count)
@@ -166,9 +156,7 @@ public class HierarchicalStrategy : IStrategy
                     // Set the new target index
                     _currentWaypointIndex = newWaypointIndex;
                     Debug.Log($"Waypoint {i} reached! New target is waypoint {_currentWaypointIndex}.");
-
-                    // We've found the closest future waypoint the ball has reached.
-                    // Break the loop and wait for the next OnActionReceived call.
+                    _agent.AddReward(waypointReward);
                     break;
                 }
             }
@@ -180,7 +168,8 @@ public class HierarchicalStrategy : IStrategy
         {
             // If something is wrong with the plan, return the ball's own position
             // to prevent errors.
-            return _agent.ball.transform.position;
+            UnityEngine.Debug.LogWarning("Current plan is null or index is out of bounds. Returning ball's position.");
+            return _agent.ball.transform.localPosition;
         }
         
         // Get the grid position of the waypoint
