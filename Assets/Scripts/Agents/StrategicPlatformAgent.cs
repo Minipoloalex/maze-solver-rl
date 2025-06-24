@@ -20,14 +20,12 @@ public class StrategicPlatformAgent : PlatformAgent
     // We use [SerializeReference] to allow the strategy's properties to be edited in the Inspector.
     [SerializeReference]
     public IStrategy strategy;
-    private StatsRecorder m_StatsRecorder;
 
     public override void Initialize()
     {
         base.Initialize();
         strategy = StrategyFactory.Create(selectedStrategy);
         strategy.Initialize(this);
-        m_StatsRecorder = Academy.Instance.StatsRecorder;
     }
 
     public override void OnEpisodeBegin()
@@ -49,30 +47,6 @@ public class StrategicPlatformAgent : PlatformAgent
         base.OnActionReceived(actions);
         // The strategy handles rewards and termination
         strategy.ProcessActions();
-    }
-
-    // All Record methods should be called before EndEpisode() is called
-    // This method should be called from the strategy when the agent succeeds.
-    public void RecordSuccess()
-    {
-        // Record the number of steps taken for this successful episode
-        m_StatsRecorder.Add("Episode/StepsToCompletion", StepCount);
-        // Record that a success occurred (value 1)
-        m_StatsRecorder.Add("Episode/SuccessRate", 1f);
-        m_StatsRecorder.Add("Episode/Timeout", 0f);
-    }
-    // This method should be called from the strategy when the agent fails.
-    public void RecordFailure()
-    {
-        // Record that a failure occurred (value 0)
-        m_StatsRecorder.Add("Episode/SuccessRate", 0f);
-        m_StatsRecorder.Add("Episode/Timeout", 0f);
-    }
-    // This method should be called from the strategy when the agent times out.
-    public void RecordTimeOut()
-    {
-        m_StatsRecorder.Add("Episode/SuccessRate", 0f);
-        m_StatsRecorder.Add("Episode/Timeout", 1f);
     }
 
     void FixedUpdate()

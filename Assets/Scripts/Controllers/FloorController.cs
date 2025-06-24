@@ -5,7 +5,7 @@ using UnityEngine;
 /// Suitable for ML-Agents and physics-based control.
 /// </summary>
 [RequireComponent(typeof(Rigidbody))]
-public class FloorController : MonoBehaviour 
+public class FloorController : MonoBehaviour
 {
     [Header("Tilt limits (degrees)")]
     public float maxTiltDeg = 14f;
@@ -57,8 +57,7 @@ public class FloorController : MonoBehaviour
     public float TiltX => NormalizeEulerAngle(transform.localEulerAngles.x) / maxTiltDeg;
     public float TiltZ => NormalizeEulerAngle(transform.localEulerAngles.z) / maxTiltDeg;
 
-    // --- Helpers ---
-
+    #region Helper Methods
     private Vector3 NormalizeEulerAngles(Vector3 euler)
     {
         return new Vector3(NormalizeEulerAngle(euler.x), euler.y, NormalizeEulerAngle(euler.z));
@@ -70,4 +69,5 @@ public class FloorController : MonoBehaviour
         if (angle > 180f) angle -= 360f;
         return angle;
     }
+    #endregion
 }
