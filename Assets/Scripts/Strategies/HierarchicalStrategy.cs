@@ -10,9 +10,7 @@ public class HierarchicalStrategy : IStrategy
     [Tooltip("How close the ball needs to be to a waypoint to consider it reached.")]
     public float waypointReachedThreshold = 1.0f;
     [Tooltip("Reward for reaching a single waypoint.")]
-    public float waypointReward = 0.2f;
-    [Tooltip("Final reward for reaching the exit.")]
-    public float finalGoalReward = 10.0f;
+    public float waypointReward = 1f;
 
     [Header("Time Penalty Settings")]
     [Tooltip("The total negative reward budget for time, applied if the agent uses its full time budget.")]
@@ -75,10 +73,12 @@ public class HierarchicalStrategy : IStrategy
 
         // Get the world position of the current target waypoint
         Vector3 targetWaypointWorldPos = GetCurrentWaypointWorldPosition();
-        
+
         // 1. Vector from ball to target waypoint (3 observations)
-        Vector3 toTarget = targetWaypointWorldPos - _agent.ball.transform.localPosition;
-        sensor.AddObservation(toTarget);
+        Vector3 waypointPos2D = new Vector3(targetWaypointWorldPos.x, 0, targetWaypointWorldPos.z);
+        Vector3 ballPos2D = new Vector3(_agent.ball.transform.localPosition.x, 0, _agent.ball.transform.localPosition.z);
+        Vector3 directionToTarget = (waypointPos2D - ballPos2D).normalized;
+        sensor.AddObservation(directionToTarget);
 
         // 2. Ball's linear velocity (3 observations)
         // Helps the agent learn to control the ball's momentum.
@@ -117,13 +117,9 @@ public class HierarchicalStrategy : IStrategy
         // Create 2D versions of the positions for accurate direction calculation
         Vector3 waypointPos2D = new Vector3(waypointWorldPos.x, 0, waypointWorldPos.z);
         Vector3 ballPos2D = new Vector3(ballWorldPos.x, 0, ballWorldPos.z);
-        
+
         // The direction is now purely horizontal (on the X-Z plane)
         Vector3 directionToTarget = (waypointPos2D - ballPos2D).normalized;
-        
-        // The original debug log, now using the corrected values for clarity
-        UnityEngine.Debug.Log($"Current waipoint pos: {waypointWorldPos}, Ball pos: {ballWorldPos}, Direction to target (2D): {directionToTarget}");
-
         Vector3 ballVelocity = _agent.m_BallRb.linearVelocity;
         // We only care about horizontal velocity for this reward
         Vector3 ballVelocity2D = new Vector3(ballVelocity.x, 0, ballVelocity.z);
@@ -131,51 +127,32 @@ public class HierarchicalStrategy : IStrategy
         float directionalReward = Vector3.Dot(ballVelocity2D.normalized, directionToTarget);
         _agent.AddReward(0.01f * directionalReward);
 
-        // --- 3. Waypoint Progression and Rewards ---
-        // Loop through all waypoints from the current one onwards.
-        // This allows the agent to "skip" waypoints if it moves fast.
-        for (int i = _currentWaypointIndex; i < _currentPlan.Count; i++)
+        //UnityEngine.Debug.Log($"Current waipoint pos: {waypointPos2D}, Ball pos: {ballPos2D}, Direction to target (2D): {directionToTarget}, Directional reward: {directionalReward}");
+
+        // --- 3. Check Current Waypoint  ---
+        // Only check if the agent has reached the current target waypoint
+        float distanceToCurrentWaypoint = Vector2.Distance(
+            new Vector2(ballWorldPos.x, ballWorldPos.z), 
+            new Vector2(waypointWorldPos.x, waypointWorldPos.z)
+        );
+
+        if (distanceToCurrentWaypoint < waypointReachedThreshold)
         {
-            Vector2Int waypointGridPos = _currentPlan[i];
-            Vector3 currentWaypointWorldPos = _agent.controller.spawner.GetWorldRelativePosition(waypointGridPos);
-            
-            // Calculate distance on the X-Z plane only
-            float distanceToWaypoint = Vector2.Distance(
-                new Vector2(ballWorldPos.x, ballWorldPos.z), 
-                new Vector2(currentWaypointWorldPos.x, currentWaypointWorldPos.z)
-            );
-
-            // Check if the agent has reached waypoint 'i'
-            if (distanceToWaypoint < waypointReachedThreshold)
+            // Check if this was the FINAL waypoint in the plan
+            if (_currentWaypointIndex == _currentPlan.Count - 1)
             {
-                // Check if this was the FINAL waypoint in the plan
-                if (i == _currentPlan.Count - 1)
-                {
-                    // Remove the final waypoint from the scene
-                    _agent.controller.RemoveWaypoint(_currentPlan[i]);
-
-                    Debug.Log("Success! Final goal reached.");
-                    _agent.AddReward(finalGoalReward);
-                    _agent.EndEpisode();
-                    return; // Episode is over, exit the method.
-                }
-                // This is an intermediate waypoint
-                else
-                {
-                    // Update the agent's target to the next waypoint in the plan
-                    int newWaypointIndex = i + 1;
-                    if (newWaypointIndex >= _currentPlan.Count)
-                    {
-                        Debug.LogError("New waypoint index is out of bounds! Resetting to 0.");
-                        newWaypointIndex = 0; // Reset to the first waypoint if out of bounds
-                    }
-
-                    // Set the new target index
-                    _currentWaypointIndex = newWaypointIndex;
-                    Debug.Log($"Waypoint {i} reached! New target is waypoint {_currentWaypointIndex}.");
-                    _agent.AddReward(waypointReward);
-                    break;
-                }
+                Debug.Log("Success! Final goal reached.");
+                _agent.AddReward(waypointReward);
+                _agent.EndEpisode();
+                return; // Episode is over, exit the method.
+            }
+            // This is an intermediate waypoint
+            else
+            {
+                // Move to the next waypoint in sequence
+                _currentWaypointIndex++;
+                Debug.Log($"Waypoint {_currentWaypointIndex - 1} reached! New target is waypoint {_currentWaypointIndex}.");
+                _agent.AddReward(waypointReward);
             }
         }
     }
