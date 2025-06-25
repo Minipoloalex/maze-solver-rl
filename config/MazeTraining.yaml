@@ -30,7 +30,7 @@ behaviors:
     hyperparameters:
       learning_rate: 3e-4
       batch_size: 4096
-      buffer_size: 409600
+      buffer_size: 204800
       beta: 5e-4
       epsilon: 0.2
       lambd: 0.95
