@@ -60,7 +60,7 @@ public class RLController : IController
 
     public void OnGoalReached()
     {
-        // --- 1. Reward for reaching the goal ---
+        //Reward for reaching the goal ---
         _agent.AddReward(goalReward);
     }
 
@@ -76,10 +76,10 @@ public class RLController : IController
     {
         if (_agent == null || _agent.ball == null) return;
 
-        // --- 2. DYNAMIC Time Penalty ---
+        //Dynamic Time Penalty
         _agent.AddReward(_dynamicPerStepPenalty);
 
-        // --- 3. Reward Shaping (Directional) ---
+        //Reward Shaping (Directional)
         Vector3 ballPos = _agent.ball.transform.localPosition;
         Vector3 directionToGoal = (_currentGoalPosition - ballPos);
         directionToGoal.y = 0;
