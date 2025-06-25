@@ -29,7 +29,6 @@ public class HierarchicalStrategy : IStrategy
         controller.OnEpisodeBegin();
         _agent.floor.ResetPose();
 
-        //Use the planner to generate a path
         Vector2Int startPos = _agent.controller.spawner.GetPosIdFromWorldRelativePosition(_agent.ball.transform.localPosition);
         Vector2Int exitPos = _agent.controller.exitPosId;
         _currentPlan = planner.GeneratePlan(_agent.controller.grid, startPos, exitPos);
@@ -39,7 +38,8 @@ public class HierarchicalStrategy : IStrategy
         
         if (_currentPlan != null && _currentPlan.Count > 1)
         {
-            _agent.controller.SpawnWaypoints(_currentPlan);
+            _agent.controller.SpawnWaypoints(_currentPlan.GetRange(1, _currentPlan.Count - 1));
+
             // The first waypoint (index 0) is the start pos, so we target the next one.
             _currentWaypointIndex = 1;
             SetCurrentGoal();
@@ -65,6 +65,12 @@ public class HierarchicalStrategy : IStrategy
         {
             controller.OnGoalReached();
             
+            if (_currentPlan != null && _currentWaypointIndex < _currentPlan.Count)
+            {
+                Vector2Int reachedWaypoint = _currentPlan[_currentWaypointIndex];
+                _agent.controller.RemoveWaypoint(reachedWaypoint);
+            }
+
             if (_currentWaypointIndex >= _currentPlan.Count - 1)
             {
                 Debug.Log("Success! Final goal reached.");

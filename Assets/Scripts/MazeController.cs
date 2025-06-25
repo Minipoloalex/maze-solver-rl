@@ -31,8 +31,7 @@ public class MazeController : MonoBehaviour
     [HideInInspector] public MazeSpawner spawner;
     [HideInInspector] public GameObject wallsOn;
     [HideInInspector] public GameObject wallsOff;
-    private GameObject _waypointsContainer; 
-    private Dictionary<Vector2Int, GameObject> _waypointObjects;
+    private GameObject _waypointsContainer;
 
     private GameObject agent;
     private GameObject floor;
@@ -133,31 +132,15 @@ public class MazeController : MonoBehaviour
             Debug.LogError("Waypoints container is not initialized!");
             return;
         }
-        foreach (var waypoint in waypoints)
-        {
-            spawner.SpawnWaypointMarker(_waypointsContainer.transform, waypoint);
-        }
+        spawner.SpawnWaypoints(_waypointsContainer.transform, waypoints);
     }
 
      public void RemoveWaypoint(Vector2Int waypointPos)
     {
-        if (_waypointObjects != null && _waypointObjects.ContainsKey(waypointPos))
+        if (spawner != null)
         {
-            GameObject waypointObj = _waypointObjects[waypointPos];
-            if (waypointObj != null)
-            {
-                Destroy(waypointObj);
-            }
-            _waypointObjects.Remove(waypointPos);
+            spawner.RemoveTrackedWaypoint(waypointPos);
         }
-    }
-
-    public GameObject SpawnWaypointsContainer(Transform parent)
-    {
-        var container = new GameObject("Waypoints");
-        container.transform.SetParent(parent);
-        container.transform.position = parent.transform.position;
-        return container;
     }
 
     public void SwitchWallToFloor(Vector2Int posId, GameObject wallObject)
@@ -220,13 +203,19 @@ public class MazeController : MonoBehaviour
     public void ResetBallVelocity()
     {
         // Reset the ball's velocity and angular velocity
-        ballRb.linearVelocity = Vector3.zero;
-        ballRb.angularVelocity = Vector3.zero;
+        if (ballRb != null)
+        {
+            ballRb.linearVelocity = Vector3.zero;
+            ballRb.angularVelocity = Vector3.zero;
+        }
     }
     public void ResetMaze()
     {
         CleanUpMaze();
-        agent.transform.localRotation = Quaternion.identity;
+        if (agent != null)
+        {
+            agent.transform.localRotation = Quaternion.identity;
+        }
         GenerateAndSpawnNewMaze();
     }
 }
