@@ -1,5 +1,3 @@
-// FILE: Assets/Scripts/Strategies/StrategyFactory.cs
-
 using UnityEngine;
 
 public static class StrategyFactory

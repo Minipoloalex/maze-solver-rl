@@ -1,4 +1,3 @@
-// FILE: Assets/Scripts/PathFinding/AStar.cs
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -65,8 +64,6 @@ public static class AStar
                     Parent = currentNode
                 };
 
-                // This simple A* assumes the first time we visit a node via the open list, it's the best path.
-                // A full implementation would check if this path is better than an existing one in the open list.
                 if (!openList.Exists(node => node.Position == neighborPos))
                 {
                     openList.Add(neighborNode);
@@ -74,7 +71,7 @@ public static class AStar
             }
         }
 
-        return new List<Vector2Int>(); // Return empty list if no path found
+        return new List<Vector2Int>();
     }
 
     private static List<Vector2Int> RetracePath(Node startNode, Node endNode)
