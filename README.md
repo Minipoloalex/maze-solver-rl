@@ -6,9 +6,11 @@
 > <br />
 > **Course:** Master's in Artificial Intelligence (MIA)
 > <br />
-> **Faculty:** Faculty of Engineering & Faculty of Science, University of Porto
+> **Faculty:** Faculty of Engineering, University of Porto
 > <br />
 > **Report:** [overleaf](https://www.overleaf.com/read/kjjzxfkhwqrh#677a07)
+> <br />
+> **Github**: https://github.com/Minipoloalex/maze-solver-rl
 ---
 
 ## Project Goals

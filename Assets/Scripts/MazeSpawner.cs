@@ -179,13 +179,7 @@ public class MazeSpawner : MonoBehaviour
 
         return ball;
     }
-    // no longer instantiated in runtime (because requires registering the sensor)
-    // public GameObject SpawnBallGridAnchor(Transform agentParent, Transform ballTransform)
-    // {
-    //     var ballGridAnchor = Instantiate(ballGridAnchorPrefab, ballTransform.position, agentParent.rotation, agentParent);
-    //     ballGridAnchor.transform.localScale = Vector3.Scale(ballGridAnchor.transform.localScale, ballScale);
-    //     return ballGridAnchor;
-    // }
+
     public Vector3 GetWorldRelativePosition(Vector2Int posId, float height = 0.5f)
     {
         // x are columns, z are rows
@@ -194,7 +188,7 @@ public class MazeSpawner : MonoBehaviour
         int r = posId.x;
         int c = posId.y;
 
-        // flip Z so row 0 is top
+        // flip Z so row 0 is the top
         Vector3 pos = new Vector3(c - xShift, height, (gridSize.y - 1 - r) - zShift);
 
         return pos;
@@ -213,7 +207,7 @@ public class MazeSpawner : MonoBehaviour
         float zShift = ((gridSize.y - 1) / 2.0f) * wallScale.z;
         float xShift = ((gridSize.x - 1) / 2.0f) * wallScale.x;
 
-        // --- Inverse Calculations ---
+        // Inverse Calculations
 
         // Solve for 'c' (column) from the x-coordinate
         // Original: pos.x = c - xShift

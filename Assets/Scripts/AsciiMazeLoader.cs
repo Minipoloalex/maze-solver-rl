@@ -8,7 +8,6 @@ using UnityEngine;
 /// 'E' = exit (only one should exist)
 /// It returns the result as a MazeRuntimeGrid (grid of booleans) and out-arguments
 /// </summary>
-
 public class AsciiMazeLoader : MonoBehaviour
 {
     public TextAsset asciiMaze;

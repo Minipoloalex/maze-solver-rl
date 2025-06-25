@@ -5,9 +5,9 @@ public class MazeController : MonoBehaviour
 {
     [Header("Maze Parameters")]
     public bool generateRandomMaze = false;
-    public bool allowRuntimeModifications = true; // TODO: in case clicker stuff is slow, do not spawn it (not implemented yet)
+
     [Tooltip("Adds a border of walls around the maze. Useful for Grid Sensors. Should depend on the size of the grid sensors")]
-    public int mazePadding = 1;
+    public int mazePadding = 3;
 
     [Header("Maze Random Generation Parameters")]
     [Tooltip("Whether to generate a random maze or use the given seed")]

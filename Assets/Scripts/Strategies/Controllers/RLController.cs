@@ -60,7 +60,7 @@ public class RLController : IController
 
     public void OnGoalReached()
     {
-        //Reward for reaching the goal ---
+        // Reward for reaching the goal
         _agent.AddReward(goalReward);
     }
 

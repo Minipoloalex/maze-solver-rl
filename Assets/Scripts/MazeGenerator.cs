@@ -149,27 +149,27 @@ public static class MazeGenerator
         out Vector2Int ballPosRuntime,
         out Vector2Int exitPosRuntime)
     {
-        // 1. Generate the low-level maze data
+        // Generate the low-level maze data
         // Note: generatorCellWidth and generatorCellHeight must be at least 1.
         int genWidth = Mathf.Max(1, generatorCellWidth);
         int genHeight = Mathf.Max(1, generatorCellHeight);
 
         int[,] mazeData = Generate(genWidth, genHeight, seed, difficulty);
 
-        // 2. Determine the generator's start cell (used for ball position)
+        // Determine the generator's start cell (used for ball position)
         // The DFS in Generate() picks a random start cell. We replicate that first RNG pick.
         System.Random tempRngForStart = new System.Random(seed);
         Vector2Int generatorStartCell = new Vector2Int(tempRngForStart.Next(genWidth), tempRngForStart.Next(genHeight));
         // generatorStartCell.x is column, generatorStartCell.y is row in mazeData's context
 
-        // 3. Define MazeRuntimeGrid dimensions
+        // Define MazeRuntimeGrid dimensions
         // Each cell from mazeData maps to a 2x2 area, plus boundary.
         // MazeRuntimeGrid coordinates are (row, col).
         int runtimeGridRows = genHeight * 2 + 1;
         int runtimeGridCols = genWidth * 2 + 1;
         MazeRuntimeGrid runtimeGrid = new MazeRuntimeGrid(runtimeGridRows, runtimeGridCols);
 
-        // 4. Initialize MazeRuntimeGrid: Make all cells walls initially.
+        // Initialize MazeRuntimeGrid: Make all cells walls initially.
         // (Assuming MazeRuntimeGrid constructor defaults to floor, so we add walls)
         for (int r_rt = 0; r_rt < runtimeGridRows; r_rt++)
         {
@@ -179,7 +179,7 @@ public static class MazeGenerator
             }
         }
 
-        // 5. Carve paths in MazeRuntimeGrid based on mazeData
+        // Carve paths in MazeRuntimeGrid based on mazeData
         // mazeData[col, row] stores wall flags.
         // Vector2Int for MazeRuntimeGrid is (row, col).
         for (int gen_r = 0; gen_r < genHeight; gen_r++) // Iterate generator's rows
@@ -216,11 +216,11 @@ public static class MazeGenerator
             }
         }
 
-        // 6. Set ball position (maps from generator's start cell)
+        // Set ball position (maps from generator's start cell)
         // generatorStartCell.x is col, .y is row. MazeRuntimeGrid uses (row, col).
         ballPosRuntime = new Vector2Int(generatorStartCell.y * 2 + 1, generatorStartCell.x * 2 + 1);
 
-        // 7. Set exit position (e.g., map from a corner of the generator's grid)
+        // Set exit position (e.g., map from a corner of the generator's grid)
         // Default to top-right corner of the generator grid
         int exit_gen_r = genHeight - 1;
         int exit_gen_c = genWidth - 1;
