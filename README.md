@@ -83,6 +83,7 @@ The agent's learning is guided by a carefully engineered multi-component reward 
     <em>Figure 3: Flowchart of the hierarchical reward function. Dense rewards guide the agent towards a waypoint, while a large sparse reward is given for reaching it.</em>
   </small>
 </p>
+
 ### End-to-End Maze Navigation
 
  This strategy uses a single, monolithic reinforcement learning policy to handle the entire navigation task autonomously. 
