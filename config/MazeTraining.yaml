@@ -1,8 +1,8 @@
 env_settings:
   num_areas: 8
 behaviors:
-  MazeBBT:
-    trainer_type: ppo               # SAC also works; PPO is default & stable
+  EndToEndMazeSolver:
+    trainer_type: ppo               # PPO is default and stable
     hyperparameters:
       learning_rate: 3e-4
       batch_size: 4096
@@ -18,18 +18,12 @@ behaviors:
         sequence_length: 128         # gives the agent short-term memory
         memory_size: 256
       normalize: true
-      # vis_encode_type: fully_connected  # for processing grid observation
-      vis_encode_type: simple
-
-      # vibe-coded in: does it exist?
-      # sensor_settings:
-      #   - name: GridSensor  # name set in Unity editor
-      #     encoding_type: simple  # Options: simple, resnet, match3, nature_cnn (for visual)
+      vis_encode_type: simple # for processing grid observation
     reward_signals:
       extrinsic:
         gamma: 0.99
         strength: 1.0
-    max_steps: 50e6                 # ~2-4 h on a modern GPU with 16 envs
+    max_steps: 50e6
     time_horizon: 128
   HierarchicalMazeSolver:
     trainer_type: ppo
@@ -58,6 +52,6 @@ environment_parameters:
     sampler_type: uniform
     sampler_parameters: {min_value: 0, max_value: 2_000_000}
 
-  difficulty:               # later used for curriculum
+  difficulty:               # later could be used for curriculum
     sampler_type: uniform
     sampler_parameters: {min_value: 0.1, max_value: 0.1}

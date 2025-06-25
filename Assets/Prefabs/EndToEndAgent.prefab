@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 623105360836064306}
   - component: {fileID: 3110986455032538540}
   m_Layer: 0
-  m_Name: PlatformAgent
+  m_Name: EndToEndAgent
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -89,7 +89,7 @@ MonoBehaviour:
   m_Model: {fileID: 5022602860645237092, guid: 0e371b32029e8220fac17ab2d82bb5d3, type: 3}
   m_InferenceDevice: 2
   m_BehaviorType: 0
-  m_BehaviorName: MazeBBT
+  m_BehaviorName: EndToEndMazeSolver
   TeamId: 0
   m_UseChildSensors: 1
   m_UseChildActuators: 1
@@ -144,8 +144,8 @@ MonoBehaviour:
   worldExitPosition: {x: 0, y: 0, z: 0}
   ball: {fileID: 0}
   _ballGridAnchorTransform: {fileID: 0}
-  m_BallRb: {fileID: 0}
   floor: {fileID: 0}
+  m_BallRb: {fileID: 0}
   selectedStrategy: 0
   strategy:
     rid: -2
