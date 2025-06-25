@@ -143,6 +143,137 @@ You can easily switch between the `Hierarchical` and `End-to-End` agents in the 
   </figcaption>
 </p>
 
+## Training & Development
+
+### Training the Agents
+
+This project uses the **Unity ML-Agents Toolkit** to train the reinforcement learning agents.
+
+**1. Training Command**
+
+After installing the Python requirements, you can start training from your terminal. The main command is `mlagents-learn`. You must point it to a configuration file and give your training run a unique ID.
+
+```bash
+mlagents-learn <config_file_path> --run-id=<your_run_id>
+```
+
+  * **`<config_file_path>`**: Path to the training configuration file. We have provided two:
+      * `config/MazeTraining.yaml`: For the `Hierarchical` and `EndToEnd` maze-solving agents.
+      * `config/Platform.yaml`: For the simpler `BalancePlatform` and `PlatformTarget` baseline agents.
+  * **`--run-id`**: A unique name for your training run. Trained models and summaries will be saved in a `results/<your_run_id>` folder.
+
+**2. Starting a Training Session**
+
+1.  Open the project in the Unity Editor and load the desired scene (e.g., `MazeScene`).
+2.  Open a terminal in the project's root directory.
+3.  Run the training command. For example, to train the maze agents:
+    ```bash
+    mlagents-learn config/MazeTraining.yaml --run-id=MazeTestRun01
+    ```
+4.  When you see the message "Start training by pressing the Play button in the Unity Editor", press **Play** in Unity to begin.
+5.  You can monitor the training progress in the terminal or by using TensorBoard: `tensorboard --logdir results`.
+
+**3. Using the Trained Model**
+
+1.  Once training is complete (or you stop it with `Ctrl+C`), the trained model will be saved as an `.onnx` file. You can find it at `results/<your_run_id>/<Behavior_Name>.onnx`.
+      * The `Behavior_Name` is defined in the agent's `Behavior Parameters` component in Unity (e.g., `HierarchicalMazeSolver`).
+2.  Copy the generated `.onnx` file into your Unity project, for example, into the `Assets/Models` folder.
+3.  In the Unity Editor, select the agent prefab you want to update (e.g., `HierarchicalAgent`).
+4.  In the Inspector, find the **Behavior Parameters** component.
+5.  Drag your new `.onnx` model file from the Project window into the **Model** field.
+6. The agent will now use your newly trained model when you run the simulation.
+
+### Tutorial: How to Add a New Strategy
+
+The project's Strategy Pattern makes it easy to implement and test new algorithms.
+
+**Step 1: Create a New Strategy Class**
+
+1.  In the Unity Project window, navigate to `Assets/Scripts/Strategies`.
+2.  Create a new C\# script (e.g., `MyNewStrategy.cs`).
+3.  This class must implement the `IStrategy` interface. Use the following template as a starting point:
+
+<!-- end list -->
+
+```csharp
+// In MyNewStrategy.cs
+using UnityEngine;
+using Unity.MLAgents.Sensors;
+
+[System.Serializable]
+public class MyNewStrategy : IStrategy
+{
+    // Add public fields here to make them editable in the Inspector
+    [Header("My New Strategy Settings")]
+    public float myCustomParameter = 1.0f;
+
+    private StrategicPlatformAgent _agent;
+
+    public void Initialize(StrategicPlatformAgent agent)
+    {
+        _agent = agent;
+        Debug.Log("MyNewStrategy Initialized!");
+    }
+
+    public void OnEpisodeBegin()
+    {
+        // Logic to reset the environment for your strategy
+    }
+
+    public void CollectObservations(VectorSensor sensor)
+    {
+        // Add observations relevant to your strategy
+    }
+
+    public void ProcessActions()
+    {
+        // Implement the core logic: calculate rewards, check for end conditions
+    }
+}
+```
+
+**Step 2: Register the New Strategy**
+
+1.  Open the `Assets/Scripts/Agents/StrategicPlatformAgent.cs` script.
+
+2.  Add your new strategy to the `StrategyType` enum:
+
+    ```csharp
+    public enum StrategyType
+    {
+        EndToEnd,
+        Hierarchical,
+        MyNewStrategy // Add your new strategy here
+    }
+    ```
+
+3.  Open the `Assets/Scripts/Strategies/StrategyFactory.cs` script.
+
+4.  Add a `case` to the `Create` method to instantiate your new class:
+
+    ```csharp
+    public static IStrategy Create(StrategicPlatformAgent.StrategyType type)
+    {
+        switch (type)
+        {
+            // ... existing cases
+            case StrategicPlatformAgent.StrategyType.MyNewStrategy:
+                return new MyNewStrategy();
+            // ...
+        }
+    }
+    ```
+
+**Step 3: Select and Configure in Unity**
+
+1.  Select the `StrategicPlatformAgent` prefab or the instance in your scene.
+2.  In the Inspector, find the `Strategic Platform Agent (Script)` component.
+3.  Use the **Selected Strategy** dropdown to choose `MyNewStrategy`.
+4.  The public fields from your new strategy class (like `myCustomParameter`) will now appear in the Inspector, allowing you to configure them without changing the code.
+
+You can now press **Play** to run the agent with your new custom logic\! If it's an RL-based strategy, you'll also need to add a new behavior configuration to the `.yaml` file for training.
+
+
 ## Tech Stack
 
 Python, C\#, Unity, Unity ML-Agents, PPO
