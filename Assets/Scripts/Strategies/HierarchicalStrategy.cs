@@ -36,7 +36,7 @@ public class HierarchicalStrategy : IStrategy
         controller.OnEpisodeBegin();
         _agent.floor.ResetPose();
 
-        Vector2Int startPos = _agent.controller.spawner.GetPosIdFromWorldRelativePosition(_agent.ball.transform.localPosition);
+        Vector2Int startPos = GetBallGridPosition();
         Vector2Int exitPos = _agent.controller.exitPosId;
         _currentPlan = planner.GeneratePlan(_agent.controller.grid, startPos, exitPos);
         if (controller is RLController rlController){
