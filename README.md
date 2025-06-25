@@ -53,7 +53,7 @@ The project's architecture was designed to be modular and extensible, using a **
   <img src="docs/strategyPattern.png" alt="Architectural diagram of the Strategy pattern implementation" width="450">
   <br>
   <small>
-    <em>Figure 2: Architecture implementing the Strategy pattern. The main agent delegates control, allowing it to switch between a direct EndToEndStrategy and a HierarchicalStrategy that combines an A planner with a low-level RL controller.*</em>
+    <em>Figure 2: Architecture implementing the Strategy pattern. The main agent delegates control, allowing it to switch between a direct EndToEndStrategy and a HierarchicalStrategy that combines an A planner with a low-level RL controller.</em>
   </small>
 </p>
 
