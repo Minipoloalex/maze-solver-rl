@@ -1,5 +1,3 @@
-// FILE: Assets/Scripts/Strategies/MazeSolverStrategy.cs
-
 using UnityEngine;
 using Unity.MLAgents;
 using Unity.MLAgents.Sensors;
@@ -7,7 +5,7 @@ using Unity.MLAgents.Actuators;
 using System.Diagnostics;
 
 [System.Serializable]
-public class MazeSolverStrategy : IStrategy
+public class EndToEndStrategy : IStrategy
 {
     [Header("Rewards")]
     public float goalReachedDistanceThreshold = 1.0f;
@@ -73,7 +71,7 @@ public class MazeSolverStrategy : IStrategy
         }
 
         float normalizedDistanceToExitBfs = GetNormalizedDistanceToExitBFS();
-        if (normalizedDistanceToExitBfs == 0) // BFS distance of 0 means we are at the target cell
+        if (normalizedDistanceToExitBfs == 0)
         {
             UnityEngine.Debug.Log("Goal Reached!");
             _agent.SetReward(10.0f);

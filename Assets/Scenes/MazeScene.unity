@@ -526,6 +526,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 8178175224102189146, guid: 01a47d85d61763af681fdd75b9801c8c, type: 3}
     - target: {fileID: 1853560626122952721, guid: 9386e45ed811a7a9d81ab84be4fc4532, type: 3}
+      propertyPath: waypointPrefab
+      value: 
+      objectReference: {fileID: 6170987106249805962, guid: 2f9d47a0a313f1bf9b0ffd7825b1925d, type: 3}
+    - target: {fileID: 1853560626122952721, guid: 9386e45ed811a7a9d81ab84be4fc4532, type: 3}
       propertyPath: exitPadScalingY
       value: 0.01
       objectReference: {fileID: 0}

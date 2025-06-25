@@ -1,5 +1,3 @@
-// FILE: Assets/Scripts/Agent/PlatformAgent.cs
-
 using UnityEngine;
 using Unity.MLAgents;
 using Unity.MLAgents.Actuators;

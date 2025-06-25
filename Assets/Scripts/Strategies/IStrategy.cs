@@ -1,5 +1,3 @@
-// FILE: Assets/Scripts/Strategies/IStrategy.cs
-
 using Unity.MLAgents.Actuators;
 using Unity.MLAgents.Sensors;
 
