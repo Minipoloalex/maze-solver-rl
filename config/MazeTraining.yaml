@@ -2,7 +2,7 @@ env_settings:
   num_areas: 8
 behaviors:
   EndToEndMazeSolver:
-    trainer_type: ppo               # PPO is default and stable
+    trainer_type: ppo
     hyperparameters:
       learning_rate: 3e-4
       batch_size: 4096
