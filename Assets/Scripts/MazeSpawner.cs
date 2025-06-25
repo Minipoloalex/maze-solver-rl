@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 /// <summary>
 /// Contains methods to spawn objects in the scene
@@ -19,10 +20,13 @@ public class MazeSpawner : MonoBehaviour
     public GameObject exitPadPrefab;    // prefab 1 x 1 x 1: represents the exit (only for visualisation for now)
     [Tooltip("Y-scaling for the exit pad prefab")]
     public float exitPadScalingY = 0.01f; // should be about 0.1f
+    public GameObject waypointPrefab;
 
     [Header("Scales")]
     public Vector3 wallScale = Vector3.one;
     public Vector3 ballScale = Vector3.one;
+
+    private Dictionary<Vector2Int, GameObject> _waypointObjects = new Dictionary<Vector2Int, GameObject>();
 
     public GameObject SpawnPlatformAgent(Transform parent, MazeController controller, Vector2Int exitPosId)
     {
@@ -77,6 +81,52 @@ public class MazeSpawner : MonoBehaviour
 
         return wall;
     }
+    public GameObject SpawnWaypointsContainer(Transform parent)
+    {
+        var container = new GameObject("Waypoints");
+        container.transform.SetParent(parent);
+        container.transform.position = parent.transform.position;
+        return container;
+    }
+
+    public void SpawnWaypoints(Transform parent, List<Vector2Int> waypoints)
+    {
+        ClearAllWaypoints();
+        if (waypoints == null) return;
+
+        foreach (var posId in waypoints)
+        {
+            GameObject waypointObj = SpawnWaypointMarker(parent, posId);
+            if (waypointObj != null)
+            {
+                _waypointObjects[posId] = waypointObj;
+            }
+        }
+    }
+
+    public void RemoveTrackedWaypoint(Vector2Int waypointPos)
+    {
+        if (_waypointObjects.TryGetValue(waypointPos, out GameObject waypointObj))
+        {
+            if (waypointObj != null)
+            {
+                Destroy(waypointObj);
+            }
+            _waypointObjects.Remove(waypointPos);
+        }
+    }
+
+    public void ClearAllWaypoints()
+    {
+        foreach (var waypointObj in _waypointObjects.Values)
+        {
+            if (waypointObj != null)
+            {
+                Destroy(waypointObj);
+            }
+        }
+        _waypointObjects.Clear();
+    }
 
     public GameObject SpawnFloorTrigger(Transform parent, Vector2Int posId, MazeController controller)
     {
@@ -93,6 +143,20 @@ public class MazeSpawner : MonoBehaviour
 
         return trigger;
     }
+    public GameObject SpawnWaypointMarker(Transform parent, Vector2Int posId)
+    {
+        // Spawn waypoint slightly elevated to be visible
+        Vector3 pos = GetWorldRelativePosition(posId, height: 0.6f); 
+        
+        var waypoint = Instantiate(waypointPrefab, parent.position + pos, parent.rotation, parent);
+        waypoint.transform.localPosition = pos;
+        waypoint.transform.localRotation = Quaternion.identity;
+        // Optional: scale the waypoint marker if needed
+        // waypoint.transform.localScale = new Vector3(0.2f, 0.2f, 0.2f);
+        
+        return waypoint;
+    }
+
     public GameObject SpawnExitPad(Transform parent, Vector2Int posId)
     {
         Vector3 pos = GetWorldRelativePosition(posId, height: exitPadScalingY / 2);

@@ -1,5 +1,3 @@
-// FILE: Assets/Scripts/Strategies/StrategyFactory.cs
-
 using UnityEngine;
 
 public static class StrategyFactory
@@ -8,8 +6,11 @@ public static class StrategyFactory
     {
         switch (type)
         {
-            case StrategicPlatformAgent.StrategyType.MazeSolver:
-                return new MazeSolverStrategy();
+            case StrategicPlatformAgent.StrategyType.EndToEnd:
+                return new EndToEndStrategy();
+
+            case StrategicPlatformAgent.StrategyType.Hierarchical:
+                return new HierarchicalStrategy();
 
             default:
                 Debug.LogError($"Unknown strategy type: {type}");
