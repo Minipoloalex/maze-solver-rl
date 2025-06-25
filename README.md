@@ -47,14 +47,13 @@ This project extends the classic ball-and-plate control problem by adding maze n
 
 The project's architecture was designed to be modular and extensible, using a **Strategy design pattern** in C# within the Unity environment. This decouples the agent's core logic from its decision-making process, allowing for seamless switching between different algorithmic approaches. The two primary strategies implemented are `HierarchicalStrategy` and `EndToEndStrategy`. Further technical documentation and implementation details are available on the project's [deepWiki](https://deepwiki.com/Minipoloalex/maze-solver-rl).
 
-<figure style="text-align:center;">
+<p style="text-align:center;">
   <img src="docs/strategyPattern.png" alt="Architectural diagram of the Strategy pattern implementation" width="450">
   <br>
   <small>
     <em>Figure 2: Architecture implementing the Strategy pattern. The main agent delegates control, allowing it to switch between a direct EndToEndStrategy and a HierarchicalStrategy that combines an A planner with a low-level RL controller.*</em>
   </small>
-</figure>
-
+</p>
 
 ### Baseline Tasks: Foundational Control
 
@@ -77,14 +76,13 @@ The agent's learning is guided by a carefully engineered multi-component reward 
   *  **Dynamic Time Penalty ($R\_{time}$):** A small negative reward at each step to incentivize speed. It is scaled based on maze complexity to ensure fairness.
   *  **Waypoint Achievement Reward ($R\_{waypoint}$):** A sparse, positive reward of +1.0 is given for reaching each waypoint, providing a clear signal for sub-goal completion. 
 
-<figure style="text-align:center;">
+<p style="text-align:center;">
   <img src="docs/hierarchical_reward_flow.png" alt="Flowchart of the reward function for the hierarchical agent" width="450">
   <br>
   <small>
     <em>Figure 3: Flowchart of the hierarchical reward function. Dense rewards guide the agent towards a waypoint, while a large sparse reward is given for reaching it.</em>
   </small>
-</figure>
-
+</p>
 ### End-to-End Maze Navigation
 
  This strategy uses a single, monolithic reinforcement learning policy to handle the entire navigation task autonomously. 
@@ -135,13 +133,12 @@ You can easily switch between the `Hierarchical` and `End-to-End` agents in the 
 5.  Drag either the `HierarchicalAgent` or `EndToEndAgent` prefab from the `Assets/Prefabs` folder into the **Platform Agent Prefab** slot in the Inspector.
 6.  Press **Play** to run the simulation with the selected agent.
 
-<figure style="text-align:center;">
+<p style="text-align:center;">
   <img src="docs/tutorial_change_agent_prefab.png" alt="Switching agent prefabs in the Unity Inspector" width="700">
   <figcaption>
     <small><em>Figure 4: To change the agent, select the <b>Maze</b> GameObject and drag the desired agent prefab (e.g., <b>HierarchicalAgent</b>) into the <b>Platform Agent Prefab</b> field of the Maze Spawner script.</em></small>
   </figcaption>
-</figure>
-
+</p>
 
 ## Tech Stack
 
