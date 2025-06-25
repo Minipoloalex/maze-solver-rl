@@ -8,9 +8,10 @@
 > <br />
 > **Faculty:** Faculty of Engineering, University of Porto
 > <br />
-> **Report:** [overleaf](https://www.overleaf.com/read/kjjzxfkhwqrh#677a07)
+> **[Report](docs/report.pdf)** 
+> <br>
+> **[Presentation](docs/presentation.pdf)** 
 > <br />
-> **Github**: https://github.com/Minipoloalex/maze-solver-rl
 ---
 
 ## Project Goals
