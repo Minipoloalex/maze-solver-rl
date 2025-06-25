@@ -13,11 +13,12 @@ public abstract class PlatformAgent : Agent
     public Vector3 worldExitPosition;
     public GameObject ball;
     public Transform _ballGridAnchorTransform;
+    public FloorController floor;
 
     [HideInInspector]
     public Rigidbody m_BallRb;
     [HideInInspector]
-    public FloorController floor;
+    protected StatsRecorder m_StatsRecorder;
 
     public override void Initialize()
     {
@@ -26,6 +27,7 @@ public abstract class PlatformAgent : Agent
             SetBall(ball);
         }
         floor = GetComponent<FloorController>();
+        m_StatsRecorder = Academy.Instance.StatsRecorder;
     }
 
     public virtual void Init(GameObject ball, GameObject ballGridAnchor)
@@ -53,4 +55,29 @@ public abstract class PlatformAgent : Agent
         float inputZ = actionBuffers.ContinuousActions[1];
         floor.ApplyTilt(inputX, inputZ);
     }
+
+    // All Record methods should be called before EndEpisode() is called
+    // This method should be called from the strategy when the agent succeeds.
+    public void RecordSuccess()
+    {
+        // Record the number of steps taken for this successful episode
+        m_StatsRecorder.Add("Episode/StepsToCompletion", StepCount);
+        // Record that a success occurred (value 1)
+        m_StatsRecorder.Add("Episode/SuccessRate", 1f);
+        m_StatsRecorder.Add("Episode/Timeout", 0f);
+    }
+    // This method should be called from the strategy when the agent fails.
+    public void RecordFailure()
+    {
+        // Record that a failure occurred (value 0)
+        m_StatsRecorder.Add("Episode/SuccessRate", 0f);
+        m_StatsRecorder.Add("Episode/Timeout", 0f);
+    }
+    // This method should be called from the strategy when the agent times out.
+    public void RecordTimeOut()
+    {
+        m_StatsRecorder.Add("Episode/SuccessRate", 0f);
+        m_StatsRecorder.Add("Episode/Timeout", 1f);
+    }
+
 }
