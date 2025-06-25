@@ -77,8 +77,8 @@ public class HierarchicalStrategy : IStrategy
         // 1. Vector from ball to target waypoint (3 observations)
         Vector3 waypointPos2D = new Vector3(targetWaypointWorldPos.x, 0, targetWaypointWorldPos.z);
         Vector3 ballPos2D = new Vector3(_agent.ball.transform.localPosition.x, 0, _agent.ball.transform.localPosition.z);
-        Vector3 directionToTarget = (waypointPos2D - ballPos2D).normalized;
-        sensor.AddObservation(directionToTarget);
+        sensor.AddObservation(waypointPos2D - ballPos2D);
+        Debug.Log($"Direction to target waypoint (2D): {waypointPos2D - ballPos2D}");
 
         // 2. Ball's linear velocity (3 observations)
         // Helps the agent learn to control the ball's momentum.
@@ -143,6 +143,7 @@ public class HierarchicalStrategy : IStrategy
             {
                 Debug.Log("Success! Final goal reached.");
                 _agent.AddReward(waypointReward);
+                _agent.RecordSuccess();
                 _agent.EndEpisode();
                 return; // Episode is over, exit the method.
             }
