@@ -77,8 +77,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_BrainParameters:
-    VectorObservationSize: 10
-    NumStackedVectorObservations: 1
+    VectorObservationSize: 12
+    NumStackedVectorObservations: 3
     m_ActionSpec:
       m_NumContinuousActions: 2
       BranchSizes: 
@@ -86,10 +86,10 @@ MonoBehaviour:
     VectorActionDescriptions: []
     VectorActionSpaceType: 1
     hasUpgradedBrainParametersWithActionSpec: 1
-  m_Model: {fileID: 5022602860645237092, guid: d02ca2fb6409d0d378a3856849511b4e, type: 3}
+  m_Model: {fileID: 5022602860645237092, guid: 0e371b32029e8220fac17ab2d82bb5d3, type: 3}
   m_InferenceDevice: 2
   m_BehaviorType: 0
-  m_BehaviorName: HierarchicalMazeSolver
+  m_BehaviorName: MazeBBT
   TeamId: 0
   m_UseChildSensors: 1
   m_UseChildActuators: 1
@@ -146,7 +146,7 @@ MonoBehaviour:
   _ballGridAnchorTransform: {fileID: 0}
   m_BallRb: {fileID: 0}
   floor: {fileID: 0}
-  selectedStrategy: 1
+  selectedStrategy: 0
   strategy:
     rid: -2
   references:

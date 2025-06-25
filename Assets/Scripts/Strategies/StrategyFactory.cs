@@ -6,8 +6,8 @@ public static class StrategyFactory
     {
         switch (type)
         {
-            case StrategicPlatformAgent.StrategyType.MazeSolver:
-                return new MazeSolverStrategy();
+            case StrategicPlatformAgent.StrategyType.EndToEnd:
+                return new EndToEndStrategy();
 
             case StrategicPlatformAgent.StrategyType.Hierarchical:
                 return new HierarchicalStrategy();

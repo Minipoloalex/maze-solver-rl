@@ -5,7 +5,7 @@ using Unity.MLAgents.Actuators;
 using System.Diagnostics;
 
 [System.Serializable]
-public class MazeSolverStrategy : IStrategy
+public class EndToEndStrategy : IStrategy
 {
     [Header("Rewards")]
     public float goalReachedDistanceThreshold = 1.0f;

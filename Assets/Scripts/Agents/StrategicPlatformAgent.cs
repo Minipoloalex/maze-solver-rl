@@ -7,7 +7,7 @@ public class StrategicPlatformAgent : PlatformAgent
 {
     public enum StrategyType
     {
-        MazeSolver,
+        EndToEnd,
         Hierarchical
     }
 
